@@ -20,6 +20,8 @@ engine = create_engine(
 
 # SessionalLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+Base = declarative_base()
+
 
 def get_conn():
     return engine.connect()
