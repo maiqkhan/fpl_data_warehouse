@@ -1,0 +1,71 @@
+BASE_URL: https://fantasy.premierleague.com/api/
+KEEP_KEY_DICT: 
+    fixtures: 
+      - id
+      - event
+      - finished
+      - kickoff_time
+      - team_h
+      - team_a
+    teams: 
+      - id  
+      - name  
+      - short_name  
+      - strength  
+      - strength_overall_home  
+      - strength_overall_away  
+      - strength_attack_home  
+      - strength_attack_away  
+      - strength_defence_home  
+      - strength_defence_away  
+    
+    elements: 
+      - element_type  
+      - first_name  
+      - id  
+      - second_name  
+      - squad_number   
+      - web_name  
+    
+    element-summary: 
+      - element  
+      - fixture  
+      - opponent_team  
+      - total_points  
+      - was_home  
+      - team_h_score  
+      - team_a_score  
+      - round  
+      - minutes  
+      - goals_scored  
+      - assists  
+      - clean_sheets  
+      - goals_conceded  
+      - own_goals  
+      - penalties_saved  
+      - penalties_missed  
+      - yellow_cards  
+      - red_cards  
+      - saves  
+      - bonus  
+      - bps  
+      - influence  
+      - creativity  
+      - threat  
+      - ict_index  
+      - starts  
+      - expected_goals  
+      - expected_assists  
+      - expected_goal_involvements  
+      - expected_goals_conceded  
+      - value  
+      - selected  
+      - transfers_in  
+      - transfers_out  
+
+
+DEDICATED_ENDPOINTS:
+  - fixtures
+BOOTSTRAP_SUBSETS:
+  - teams
+  - elements
