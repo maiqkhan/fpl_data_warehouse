@@ -3,9 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from dotenv import load_dotenv
 
-
-load_dotenv()
-
+load_dotenv("..\.env", override=True)
 
 server = os.getenv("SERVER")
 server_port = os.getenv("SERVER_PORT")
