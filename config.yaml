@@ -69,3 +69,8 @@ DEDICATED_ENDPOINTS:
 BOOTSTRAP_SUBSETS:
   - teams
   - elements
+
+TABLE_ROUTE_MAP:
+  teams: teams
+  fixtures: fixtures
+  player_data: elements
