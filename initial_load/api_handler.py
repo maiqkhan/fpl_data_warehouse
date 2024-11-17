@@ -1,5 +1,6 @@
 import calendar
 from typing import List, Protocol, Dict
+from datetime import datetime as dt
 import requests
 from utils import (
     to_lower_camel_case,
@@ -137,6 +138,16 @@ class requestHandler:
 
         self.data = self.derivation_strategy.process_data(self.data)
 
+    def add_extract_dt(self) -> None:
+        """
+        Add extract_dt to data dictionary
+        """
+
+        self.data = [
+            {**data_dict, "extract_dt": dt.strftime(dt.today(), "%Y-%m-%d")}
+            for data_dict in self.data
+        ]
+
     def extract_transform_data(self) -> List[Dict[str, any]]:
         """
         Extract and transform data from the API response.
@@ -151,5 +162,6 @@ class requestHandler:
         self.get_api_response()
         self.extract_keys()
         self.derive_fields()
+        self.add_extract_dt()
 
         return self.data
