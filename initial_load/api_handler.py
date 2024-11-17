@@ -45,11 +45,11 @@ class PlayerDataDerivation:
     """Derivation strategy for player historical data"""
 
     def process_data(self, data: List[Dict[str, any]]) -> List[Dict[str, any]]:
-        for player in data:
+        for match_stats in data:
             for dict_key in ["element"]:
-                player.pop(dict_key, None)
+                match_stats.pop(dict_key, None)
 
-            player["value"] = player["value"] / 10
+            match_stats["value"] = match_stats["value"] / 10
 
         return data
 
@@ -61,6 +61,8 @@ DATA_DERIVATION_STRATEGIES = {
 
 
 class DerivationStrategyFactory:
+    """Factory for getting the deriving strategy based on the api endpoint"""
+
     @staticmethod
     def get_strategy(endpoint) -> DerivationStrategy:
         return DATA_DERIVATION_STRATEGIES.get(endpoint, DefaultDerivation())
