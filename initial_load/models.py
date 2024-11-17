@@ -17,7 +17,6 @@ class Stg_Teams(Base):
     __table_args__ = {"schema": "stg"}
 
     id = Column(Integer, primary_key=True)
-    season = Column(String, nullable=False)
     name = Column(String, nullable=False)
     shortName = Column(String, nullable=False)
     strength = Column(Integer, nullable=False)
