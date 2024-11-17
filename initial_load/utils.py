@@ -1,5 +1,6 @@
-from typing import Optional
+from typing import Optional, List, Dict
 from datetime import datetime as dt, timezone as tz
+from sqlalchemy.orm.decl_api import DeclarativeMeta
 
 
 def to_lower_camel_case(snake_str):
@@ -56,3 +57,13 @@ def generate_local_fixture_time(utc_str: str) -> dt:
     local_dtime = local_dtime.replace(tzinfo=None)
 
     return local_dtime
+
+
+def dict_to_model_inst(
+    dict_lst: List[Dict[str, any]],
+    model: DeclarativeMeta,
+) -> List[DeclarativeMeta]:
+    """Converts a list of dictionaries into a list of SQLAlchemy model instances."""
+    model_insts = [model(**data_dict) for data_dict in dict_lst]
+
+    return model_insts
