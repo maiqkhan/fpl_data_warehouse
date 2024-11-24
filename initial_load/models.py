@@ -43,12 +43,10 @@ class Stg_Fixtures(Base):
     )  # A fixture is either finished = True, or currently being played / not played yet = False
     teamH = Column(
         Integer,
-        ForeignKey(Stg_Teams.id),
         nullable=False,
     )  # All home team IDs must exist in the teams staging table
     teamA = Column(
         Integer,
-        ForeignKey(Stg_Teams.id),
         nullable=False,
     )  # All away teams IDs must exist in the teams staging table
     fixtureType = Column(String, nullable=False)
@@ -129,13 +127,13 @@ class DIM_FIXTURE(Base):
     __table_args__ = {"schema": "FPL"}
 
     FIXTURE_KEY = Column(Integer, primary_key=True, autoincrement=True)
-    FIXTURE_ID = Column(String, nullable=False)
+    FIXTURE_ID = Column(Integer, nullable=False)
     SEASON = Column(String, nullable=False)
     GAMEWEEK = Column(
         Integer
     )  # Certain fixtures may be cancelled and not yet moved to another gameweek, so null must be allowed
     FIXTURE_TYPE = Column(String, nullable=False)
-
+    FINISHED_IND = Column(Boolean, nullable=False)
     LOCAL_KICKOFF_DATETIME = Column(
         DateTime, nullable=True
     )  # Certain fixtures may be cancelled and not yet rescheduled, so null must be allowed
@@ -156,6 +154,7 @@ class DIM_PLAYER(Base):
     __table_args__ = {"schema": "FPL"}
 
     PLAYER_KEY = Column(Integer, primary_key=True, autoincrement=True)
+    PLAYER_ID = Column(Integer, nullable=False)
     FIRST_NAME = Column(String, nullable=False)
     LAST_NAME = Column(String, nullable=False)
     WEB_NAME = Column(String, nullable=False)
