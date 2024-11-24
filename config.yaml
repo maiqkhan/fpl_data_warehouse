@@ -23,8 +23,7 @@ KEEP_KEY_DICT:
       - element_type  
       - first_name  
       - id  
-      - second_name  
-      - squad_number   
+      - second_name     
       - web_name  
     
     element-summary: 
