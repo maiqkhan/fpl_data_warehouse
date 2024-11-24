@@ -6,6 +6,7 @@ from utils import (
     to_lower_camel_case,
     generate_fixture_type,
     generate_local_fixture_time,
+    generate_season,
 )
 
 
@@ -27,6 +28,15 @@ class FixtureDerivation:
     """Derivation strategy for football fixture data"""
 
     def process_data(self, data: List[Dict[str, any]]) -> List[Dict[str, any]]:
+        min_fixture_str = min(
+            data,
+            key=lambda fixture: dt.strptime(
+                fixture["kickoffTime"], "%Y-%m-%dT%H:%M:%SZ"
+            ),
+        )["kickoffTime"]
+
+        min_fixture_dt = dt.strptime(min_fixture_str, "%Y-%m-%dT%H:%M:%SZ")
+
         for fixture in data:
 
             utc_kickoff_time = fixture.pop("kickoffTime")
@@ -38,6 +48,7 @@ class FixtureDerivation:
             fixture["localKickoffMonth"] = calendar.month_name[
                 fixture["localKickoffTime"].month
             ]
+            fixture["season"] = generate_season(min_fix_dt=min_fixture_dt)
 
         return data
 
@@ -96,7 +107,7 @@ class requestHandler:
 
         try:
             response: requests.models.Response = requests.get(
-                api_route, timeout=(3.05, 5)
+                api_route, timeout=(3.05, 10)
             )
 
             response.raise_for_status()
