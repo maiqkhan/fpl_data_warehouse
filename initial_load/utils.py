@@ -67,3 +67,13 @@ def dict_to_model_inst(
     model_insts = [model(**data_dict) for data_dict in dict_lst]
 
     return model_insts
+
+
+def generate_season(min_fix_dt: dt) -> str:
+    """Generate season indicator for the extraction"""
+    min_yr = min_fix_dt.year
+    max_yr = min_yr + 1
+
+    season = str(min_yr) + "-" + str(max_yr)[-2:]
+
+    return season
