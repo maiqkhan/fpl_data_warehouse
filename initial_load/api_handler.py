@@ -58,6 +58,9 @@ class PlayerDataDerivation:
 
     def process_data(self, data: List[Dict[str, any]]) -> List[Dict[str, any]]:
         for match_stats in data:
+            if match_stats["teamHScore"] is None:
+                data.remove(match_stats)
+                continue
             for dict_key in ["element"]:
                 match_stats.pop(dict_key, None)
 
