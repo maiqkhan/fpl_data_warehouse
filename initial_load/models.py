@@ -12,7 +12,7 @@ from sqlalchemy import (
 from database import Base
 
 
-class Stg_Teams(Base):
+class stg_teams(Base):
     __tablename__ = "teams"
     __table_args__ = {"schema": "stg"}
 
@@ -29,7 +29,7 @@ class Stg_Teams(Base):
     extract_dt = Column(Date, nullable=False)
 
 
-class Stg_Fixtures(Base):
+class stg_fixtures(Base):
     __tablename__ = "fixtures"
     __table_args__ = {"schema": "stg"}
 
@@ -57,7 +57,7 @@ class Stg_Fixtures(Base):
     extract_dt = Column(Date, nullable=False)
 
 
-class Stg_Player_Data(Base):
+class stg_player_data(Base):
     __tablename__ = "player_data"
     __table_args__ = {"schema": "stg"}
 
@@ -102,106 +102,106 @@ class Stg_Player_Data(Base):
     extract_dt = Column(Date, nullable=False)
 
 
-class DIM_TEAM(Base):
-    __tablename__ = "DIM_TEAM"
-    __table_args__ = {"schema": "FPL"}
+class dim_team(Base):
+    __tablename__ = "dim_team"
+    __table_args__ = {"schema": "fpl"}
 
-    TEAM_KEY = Column(Integer, primary_key=True, autoincrement=True)
-    TEAM_ID = Column(Integer, nullable=False)
-    FULL_NAME = Column(String, nullable=False)
-    SHORT_NAME = Column(String, nullable=False)
-    OVERALL_STRENGTH = Column(Integer, nullable=False)
-    HOME_OVERALL_STRENGTH = Column(Integer, nullable=False)
-    HOME_ATTACK_STRENGTH = Column(Integer, nullable=False)
-    HOME_DEFENCE_STRENGTH = Column(Integer, nullable=False)
-    AWAY_OVERALL_STRENGTH = Column(Integer, nullable=False)
-    AWAY_ATTACK_STRENGTH = Column(Integer, nullable=False)
-    AWAY_DEFENCE_STRENGTH = Column(Integer, nullable=False)
-    EFFECTIVE_DT = Column(Date, nullable=False)
-    EXPIRY_DT = Column(Date, nullable=False)
-    CURRENT_IND = Column(Boolean, nullable=False)
+    team_key = Column(Integer, primary_key=True, autoincrement=True)
+    team_id = Column(Integer, nullable=False)
+    full_name = Column(String, nullable=False)
+    short_name = Column(String, nullable=False)
+    overall_strength = Column(Integer, nullable=False)
+    home_overall_strength = Column(Integer, nullable=False)
+    home_attack_strength = Column(Integer, nullable=False)
+    home_defence_strength = Column(Integer, nullable=False)
+    away_overall_strength = Column(Integer, nullable=False)
+    away_attack_strength = Column(Integer, nullable=False)
+    away_defence_strength = Column(Integer, nullable=False)
+    effective_dt = Column(Date, nullable=False)
+    expiry_dt = Column(Date, nullable=False)
+    current_ind = Column(Boolean, nullable=False)
 
 
-class DIM_FIXTURE(Base):
-    __tablename__ = "DIM_FIXTURE"
-    __table_args__ = {"schema": "FPL"}
+class dim_fixture(Base):
+    __tablename__ = "dim_fixture"
+    __table_args__ = {"schema": "fpl"}
 
-    FIXTURE_KEY = Column(Integer, primary_key=True, autoincrement=True)
-    FIXTURE_ID = Column(Integer, nullable=False)
-    SEASON = Column(String, nullable=False)
-    GAMEWEEK = Column(
+    fixture_key = Column(Integer, primary_key=True, autoincrement=True)
+    fixture_id = Column(Integer, nullable=False)
+    season = Column(String, nullable=False)
+    gameweek = Column(
         Integer
     )  # Certain fixtures may be cancelled and not yet moved to another gameweek, so null must be allowed
-    FIXTURE_TYPE = Column(String, nullable=False)
-    FINISHED_IND = Column(Boolean, nullable=False)
-    LOCAL_KICKOFF_DATETIME = Column(
+    fixture_type = Column(String, nullable=False)
+    finished_ind = Column(Boolean, nullable=False)
+    local_kickoff_datetime = Column(
         DateTime, nullable=True
     )  # Certain fixtures may be cancelled and not yet rescheduled, so null must be allowed
-    LOCAL_KICKOFF_MONTH = Column(
+    local_kickoff_month = Column(
         String, nullable=True
     )  # Certain fixtures may be cancelled and not yet rescheduled, so null must be allowed
-    TEAM_KEY = Column(
-        Integer, ForeignKey(DIM_TEAM.TEAM_KEY, ondelete="CASCADE"), nullable=False
+    team_key = Column(
+        Integer, ForeignKey(dim_team.team_key, ondelete="CASCADE"), nullable=False
     )
-    OPPONENT_KEY = Column(
-        Integer, ForeignKey(DIM_TEAM.TEAM_KEY, ondelete="CASCADE"), nullable=False
+    opponent_key = Column(
+        Integer, ForeignKey(dim_team.team_key, ondelete="CASCADE"), nullable=False
     )
-    WAS_HOME = Column(Boolean, nullable=False)
+    was_home_ind = Column(Boolean, nullable=False)
 
 
-class DIM_PLAYER(Base):
-    __tablename__ = "DIM_PLAYER"
-    __table_args__ = {"schema": "FPL"}
+class dim_player(Base):
+    __tablename__ = "dim_player"
+    __table_args__ = {"schema": "fpl"}
 
-    PLAYER_KEY = Column(Integer, primary_key=True, autoincrement=True)
-    PLAYER_ID = Column(Integer, nullable=False)
-    FIRST_NAME = Column(String, nullable=False)
-    LAST_NAME = Column(String, nullable=False)
-    WEB_NAME = Column(String, nullable=False)
-    POSITION = Column(String, nullable=False)
-    PRICE = Column(Float, nullable=False)
-    TEAM_KEY = Column(
-        Integer, ForeignKey(DIM_TEAM.TEAM_KEY, ondelete="CASCADE"), nullable=False
+    player_key = Column(Integer, primary_key=True, autoincrement=True)
+    player_id = Column(Integer, nullable=False)
+    first_name = Column(String, nullable=False)
+    last_name = Column(String, nullable=False)
+    web_name = Column(String, nullable=False)
+    position = Column(String, nullable=False)
+    price = Column(Float, nullable=False)
+    team_key = Column(
+        Integer, ForeignKey(dim_team.team_key, ondelete="CASCADE"), nullable=False
     )
-    EFFECTIVE_DT = Column(Date, nullable=False)
-    EXPIRY_DT = Column(Date, nullable=False)
-    CURRENT_IND = Column(Boolean, nullable=False)
+    effective_dt = Column(Date, nullable=False)
+    expiry_dt = Column(Date, nullable=False)
+    current_ind = Column(Boolean, nullable=False)
 
 
-class FACT_MATCH_STATS(Base):
-    __tablename__ = "FACT_MATCH_STATS"
-    __table_args__ = {"schema": "FPL"}
+class fact_match_stats(Base):
+    __tablename__ = "fact_match_stats"
+    __table_args__ = {"schema": "fpl"}
 
-    FACT_MATCH_STAT_KEY = Column(Integer, primary_key=True, autoincrement=True)
-    PLAYER_KEY = Column(
-        Integer, ForeignKey(DIM_PLAYER.PLAYER_KEY, ondelete="CASCADE"), nullable=False
+    fact_match_stat_key = Column(Integer, primary_key=True, autoincrement=True)
+    player_key = Column(
+        Integer, ForeignKey(dim_player.player_key, ondelete="CASCADE"), nullable=False
     )
-    FIXTURE_KEY = Column(
-        Integer, ForeignKey(DIM_FIXTURE.FIXTURE_KEY, ondelete="CASCADE"), nullable=False
+    fixture_key = Column(
+        Integer, ForeignKey(dim_fixture.fixture_key, ondelete="CASCADE"), nullable=False
     )
-    MINUTES = Column(Integer, nullable=False)
-    STARTS = Column(Integer, nullable=False)
-    TOTAL_POINTS = Column(Integer, nullable=False)
-    BONUS_POINTS = Column(Integer, nullable=False)
-    BONUS_POINTS_SYSTEM_SCORE = Column(Integer, nullable=False)
-    GOALS_SCORED = Column(Integer, nullable=False)
-    PENALTIES_MISSED = Column(Integer, nullable=False)
-    EXPECTED_GOALS = Column(Float, nullable=False)
-    EXPECTED_GOAL_DIFF = Column(Float, nullable=False)
-    ASSISTS = Column(Integer, nullable=False)
-    EXPECTED_ASSISTS = Column(Float, nullable=False)
-    EXPECTED_ASSIST_DIFF = Column(Float, nullable=False)
-    EXPECTED_GOAL_INVOLVEMENTS = Column(Float, nullable=False)
-    EXPECTED_GOAL_INVOLVEMENT_DIFF = Column(Float, nullable=False)
-    GOALS_CONCEDED = Column(Integer, nullable=False)
-    EXPECTED_GOALS_CONCEDED = Column(Float, nullable=False)
-    OWN_GOALS = Column(Integer, nullable=False)
-    CLEAN_SHEETS = Column(Integer, nullable=False)
-    SAVES = Column(Integer, nullable=False)
-    PENALTIES_SAVED = Column(Integer, nullable=False)
-    YELLOW_CARDS = Column(Integer, nullable=False)
-    RED_CARDS = Column(Integer, nullable=False)
-    INFLUENCE = Column(Float, nullable=False)
-    CREATIVITY = Column(Float, nullable=False)
-    THREAT = Column(Float, nullable=False)
-    ICT_INDEX = Column(Float, nullable=False)
+    minutes = Column(Integer, nullable=False)
+    starts = Column(Integer, nullable=False)
+    total_points = Column(Integer, nullable=False)
+    bonus_points = Column(Integer, nullable=False)
+    bonus_point_system_score = Column(Integer, nullable=False)
+    goals_scored = Column(Integer, nullable=False)
+    penalties_missed = Column(Integer, nullable=False)
+    expected_goals = Column(Float, nullable=False)
+    expected_goals_diff = Column(Float, nullable=False)
+    assists = Column(Integer, nullable=False)
+    expected_assists = Column(Float, nullable=False)
+    expected_assists_diff = Column(Float, nullable=False)
+    expected_goal_involvements = Column(Float, nullable=False)
+    expected_goal_involvements_diff = Column(Float, nullable=False)
+    goals_conceded = Column(Integer, nullable=False)
+    expected_goals_conceded = Column(Float, nullable=False)
+    own_goals = Column(Integer, nullable=False)
+    clean_sheets = Column(Integer, nullable=False)
+    saves = Column(Integer, nullable=False)
+    penalties_saved = Column(Integer, nullable=False)
+    yellow_cards = Column(Integer, nullable=False)
+    red_cards = Column(Integer, nullable=False)
+    influence = Column(Float, nullable=False)
+    creativity = Column(Float, nullable=False)
+    threat = Column(Float, nullable=False)
+    ict_index = Column(Float, nullable=False)
