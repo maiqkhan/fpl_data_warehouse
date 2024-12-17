@@ -102,6 +102,20 @@ class stg_player_data(Base):
     extract_dt = Column(Date, nullable=False)
 
 
+class dim_date(Base):
+    __tablename__ = "dim_date"
+    __table_args__ = {"schema": "fpl"}
+
+    date_key = Column(Integer, primary_key=True)
+    date = Column(Date, nullable=False)
+    year = Column(Integer, nullable=False)
+    month_num = Column(Integer, nullable=False)
+    month_name = Column(String, nullable=False)
+    day_of_month = Column(Integer, nullable=False)
+    day_of_week = Column(Integer, nullable=False)
+    day_name = Column(String, nullable=False)
+
+
 class dim_team(Base):
     __tablename__ = "dim_team"
     __table_args__ = {"schema": "fpl"}
@@ -155,6 +169,7 @@ class dim_player(Base):
 
     player_key = Column(Integer, primary_key=True, autoincrement=True)
     player_id = Column(Integer, nullable=False)
+    season = Column(String, nullable=False)
     first_name = Column(String, nullable=False)
     last_name = Column(String, nullable=False)
     web_name = Column(String, nullable=False)
@@ -173,6 +188,9 @@ class fact_match_stats(Base):
     __table_args__ = {"schema": "fpl"}
 
     fact_match_stat_key = Column(Integer, primary_key=True, autoincrement=True)
+    extract_dt_key = Column(
+        Integer, ForeignKey(dim_date.date_key, ondelete="CASCADE"), nullable=False
+    )
     player_key = Column(
         Integer, ForeignKey(dim_player.player_key, ondelete="CASCADE"), nullable=False
     )
