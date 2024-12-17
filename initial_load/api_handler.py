@@ -29,9 +29,10 @@ class FixtureDerivation:
 
     def process_data(self, data: List[Dict[str, any]]) -> List[Dict[str, any]]:
         min_fixture_str = min(
-            data,
-            key=lambda fixture: dt.strptime(
-                fixture["kickoffTime"], "%Y-%m-%dT%H:%M:%SZ"
+            [fixture for fixture in data if fixture["kickoffTime"] is not None],
+            key=lambda fixture: (
+                fixture["kickoffTime"] is None,
+                dt.strptime(fixture["kickoffTime"], "%Y-%m-%dT%H:%M:%SZ"),
             ),
         )["kickoffTime"]
 
@@ -45,9 +46,11 @@ class FixtureDerivation:
                 utc_kickoff_time, fixture["event"]
             )
             fixture["localKickoffTime"] = generate_local_fixture_time(utc_kickoff_time)
-            fixture["localKickoffMonth"] = calendar.month_name[
-                fixture["localKickoffTime"].month
-            ]
+            fixture["localKickoffMonth"] = (
+                "Not Applicable"
+                if fixture["localKickoffTime"] is None
+                else calendar.month_name[fixture["localKickoffTime"].month]
+            )
             fixture["season"] = generate_season(min_fix_dt=min_fixture_dt)
 
         return data
