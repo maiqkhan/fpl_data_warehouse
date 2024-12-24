@@ -5,6 +5,7 @@ __pycache__/
 
 #Dagster Home
 dagster_home/
+data/
 
 # C extensions
 *.so
