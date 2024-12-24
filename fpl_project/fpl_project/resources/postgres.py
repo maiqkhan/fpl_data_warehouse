@@ -4,6 +4,8 @@ from dagster import (
 )
 from sqlalchemy import create_engine
 from sqlalchemy.engine.base import Engine
+from sqlalchemy.orm import sessionmaker, Session
+from contextlib import contextmanager
 
 
 class CredentialsResource(ConfigurableResource):
@@ -27,3 +29,15 @@ class PostgresResource(ConfigurableResource):
         )
 
         return engine
+
+    @contextmanager
+    def get_session(self) -> Session:
+
+        engine = self.connect_to_engine()
+        SessionLocal = sessionmaker(bind=engine)
+        session = SessionLocal()
+
+        try:
+            yield session
+        finally:
+            session.close()
