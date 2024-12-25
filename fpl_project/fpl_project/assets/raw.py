@@ -1,4 +1,10 @@
-from dagster import asset, AssetExecutionContext
+from dagster import (
+    asset,
+    AssetExecutionContext,
+    asset_check,
+    AssetCheckResult,
+    AssetCheckExecutionContext,
+)
 from fpl_project.fpl_project.resources.fpl_api import FplAPI
 from typing import Dict, List
 
@@ -6,6 +12,7 @@ from typing import Dict, List
 @asset(
     group_name="RAW_DATA",
     description="""Game data from FPL api bootstrap-static endpoint""",
+    kinds={"python"},
 )
 def raw_bootstrap(fpl_api: FplAPI) -> Dict:
 
@@ -19,6 +26,7 @@ def raw_bootstrap(fpl_api: FplAPI) -> Dict:
 @asset(
     group_name="RAW_DATA",
     description="""Game data from FPL api bootstrap-static endpoint""",
+    kinds={"python"},
 )
 def raw_players(context: AssetExecutionContext, raw_bootstrap: Dict) -> List[Dict]:
 
@@ -30,6 +38,7 @@ def raw_players(context: AssetExecutionContext, raw_bootstrap: Dict) -> List[Dic
 @asset(
     group_name="RAW_DATA",
     description="""Game data from FPL api bootstrap-static endpoint""",
+    kinds={"python"},
 )
 def raw_teams(context: AssetExecutionContext, raw_bootstrap: Dict) -> List[Dict]:
 
@@ -41,6 +50,7 @@ def raw_teams(context: AssetExecutionContext, raw_bootstrap: Dict) -> List[Dict]
 @asset(
     group_name="RAW_DATA",
     description="""Game data from FPL api bootstrap-static endpoint""",
+    kinds={"python"},
 )
 def raw_fixtures(context: AssetExecutionContext, fpl_api: FplAPI) -> List[Dict]:
 

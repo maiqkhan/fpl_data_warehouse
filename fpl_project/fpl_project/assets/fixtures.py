@@ -59,6 +59,7 @@ def generate_event_type(
 @asset(
     group_name="FIXTURES",
     description="""Game data from FPL api bootstrap-static endpoint""",
+    kinds={"python", "pandas"},
 )
 def raw_fixture_df(raw_fixtures: List[Dict]) -> pd.DataFrame:
 
@@ -72,6 +73,7 @@ def raw_fixture_df(raw_fixtures: List[Dict]) -> pd.DataFrame:
 @asset(
     group_name="FIXTURES",
     description="""Game data from FPL api bootstrap-static endpoint""",
+    kinds={"python", "pandas"},
 )
 def epl_season(context: AssetExecutionContext, raw_fixture_df: pd.DataFrame) -> str:
 
@@ -89,6 +91,7 @@ def epl_season(context: AssetExecutionContext, raw_fixture_df: pd.DataFrame) -> 
 @asset(
     group_name="FIXTURES",
     description="""Game data from FPL api bootstrap-static endpoint""",
+    kinds={"python", "pandas"},
 )
 def fixtures(
     context: AssetExecutionContext, raw_fixture_df: pd.DataFrame, epl_season: str

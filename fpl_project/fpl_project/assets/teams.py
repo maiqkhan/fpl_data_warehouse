@@ -8,6 +8,7 @@ from datetime import datetime as dt
 @asset(
     group_name="TEAMS",
     description="""Game data from FPL api bootstrap-static endpoint""",
+    kinds={"python", "pandas"},
 )
 def raw_teams_df(context: AssetExecutionContext, raw_teams: List[Dict]) -> pd.DataFrame:
 
@@ -21,6 +22,7 @@ def raw_teams_df(context: AssetExecutionContext, raw_teams: List[Dict]) -> pd.Da
 @asset(
     group_name="TEAMS",
     description="""Game data from FPL api bootstrap-static endpoint""",
+    kinds={"python", "pandas"},
 )
 def teams(raw_teams_df: pd.DataFrame, epl_season: str) -> pd.DataFrame:
 

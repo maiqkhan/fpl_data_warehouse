@@ -7,7 +7,11 @@ from typing import Dict, List
 from datetime import datetime as dt, timedelta as tmdelta
 
 
-@asset(group_name="PLAYER", description="Player payload from ")
+@asset(
+    group_name="PLAYER",
+    description="Player payload from ",
+    kinds={"python", "pandas"},
+)
 def raw_player_df(
     context: AssetExecutionContext, raw_players: List[Dict]
 ) -> pd.DataFrame:
@@ -27,7 +31,11 @@ def raw_player_df(
     return raw_df[keep_cols]
 
 
-@asset(group_name="PLAYER", description="Player payload from ")
+@asset(
+    group_name="PLAYER",
+    description="Player payload from ",
+    kinds={"python", "pandas"},
+)
 def players(
     context: AssetExecutionContext, raw_player_df: pd.DataFrame, epl_season: str
 ) -> pd.DataFrame:
