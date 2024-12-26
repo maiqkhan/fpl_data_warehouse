@@ -2,7 +2,7 @@ from dagster import asset, AssetExecutionContext
 from fpl_project.fpl_project.resources.fpl_api import FplAPI
 from typing import Dict, List, Optional
 import pandas as pd
-from datetime import datetime as dt
+from datetime import datetime as dt, date
 
 
 def generate_season_str(first_game: dt, last_game: dt) -> str:
@@ -93,6 +93,20 @@ def epl_season(context: AssetExecutionContext, raw_fixture_df: pd.DataFrame) -> 
     description="""Game data from FPL api bootstrap-static endpoint""",
     kinds={"python", "pandas"},
 )
+def first_fixture_date(raw_fixture_df: pd.DataFrame) -> date:
+
+    return (
+        raw_fixture_df.query("kickoff_time.notnull()", engine="python")["kickoff_time"]
+        .min()
+        .date()
+    )
+
+
+@asset(
+    group_name="FIXTURES",
+    description="""Game data from FPL api bootstrap-static endpoint""",
+    kinds={"python", "pandas"},
+)
 def fixtures(
     context: AssetExecutionContext, raw_fixture_df: pd.DataFrame, epl_season: str
 ) -> pd.DataFrame:
@@ -123,6 +137,7 @@ def fixtures(
             "finished",
             "team_h",
             "team_a",
+            "kickoff_time",
             "fixture_type",
             "extract_dt",
         ]
