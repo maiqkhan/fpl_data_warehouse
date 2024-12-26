@@ -1,6 +1,7 @@
 from dagster import (
     Definitions,
     load_assets_from_modules,
+    load_asset_checks_from_modules,
     EnvVar,
     define_asset_job,
     AssetSelection,
@@ -9,13 +10,26 @@ from dagster import (
     RunRequest,
 )
 
-from fpl_project.fpl_project.assets import players, raw, fixtures, teams
+from fpl_project.fpl_project.assets import (
+    dates,
+    players,
+    raw,
+    fixtures,
+    teams,
+    matches,
+    staging,
+)
 from fpl_project.fpl_project.resources import postgres, fpl_api  # noqa: TID252
 
-all_assets = load_assets_from_modules([players, raw, fixtures, teams])
+all_assets = load_assets_from_modules(
+    [players, raw, fixtures, teams, matches, dates, staging]
+)
+all_asset_checks = load_asset_checks_from_modules([raw, players])
 all_assets_job = define_asset_job(
     name="initial_job", selection=["*fixtures", "*players", "*teams"]
 )
+
+initial_load_job = define_asset_job(name="initial_load", selection=["*matches_df"])
 
 
 @schedule(job=all_assets_job, cron_schedule="*/5 * * * *")
@@ -27,7 +41,8 @@ def test_schedule():
 
 defs = Definitions(
     assets=all_assets,
-    jobs=[all_assets_job],
+    asset_checks=all_asset_checks,
+    jobs=[all_assets_job, initial_load_job],
     schedules=[test_schedule],
     resources={
         "fpl_server": postgres.PostgresResource(
