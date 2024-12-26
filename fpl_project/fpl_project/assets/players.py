@@ -1,4 +1,10 @@
-from dagster import asset, AssetExecutionContext
+from dagster import (
+    asset,
+    AssetExecutionContext,
+    asset_check,
+    AssetCheckExecutionContext,
+    AssetCheckResult,
+)
 import pandas as pd
 from fpl_project.fpl_project.resources.postgres import PostgresResource
 from fpl_project.fpl_project.resources.fpl_api import FplAPI
@@ -56,6 +62,27 @@ def players(
     )
 
     return raw_player_df
+
+
+@asset_check(
+    asset=players,
+    blocking=True,
+    description="Check that player ID is unique across players dataframe.",
+)
+def unique_player_check(
+    context: AssetCheckExecutionContext, player_df: pd.DataFrame
+) -> AssetCheckResult:
+
+    if player_df.drop_duplicates(subset=["id"]).shape[0] != player_df.shape[0]:
+        return AssetCheckResult(
+            passed=False,
+            metadata={
+                "dataframe_row_count": player_df.shape[0],
+                "unique_players": len(player_df["id"].unique()),
+            },
+        )
+    else:
+        return AssetCheckResult(passed=True)
 
 
 @asset(
