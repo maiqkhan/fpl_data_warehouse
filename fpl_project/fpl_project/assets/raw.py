@@ -23,7 +23,11 @@ def raw_bootstrap(fpl_api: FplAPI) -> Dict:
     return payload
 
 
-@asset_check(asset=raw_bootstrap, blocking=True, description=""" """)
+@asset_check(
+    asset=raw_bootstrap,
+    blocking=True,
+    description="""Check that the bootstrap endpoint is returning keys required for donwstream assets""",
+)
 def raw_bootstrap_valid_keys(context: AssetCheckExecutionContext, bootstrap_dict: Dict):
     valid_key_set = set(["elements", "teams"])
 
