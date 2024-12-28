@@ -1,0 +1,52 @@
+version: 2
+
+models:
+  - name: dim_date
+    config:
+        meta:
+          dagster:
+            group: DIMENSIONS
+    description: "A dimension table that contains date fields"
+    columns:
+      - name: date_key
+        description: "The primary key for the dimension table. A date represented in integer format."
+        data_tests:
+          - unique
+          - not_null
+      - name: date_id
+        description: "A date represented in ISO format."
+        data_tests:
+          - unique
+          - not_null
+      - name: year
+        description: "The year of the date_id"
+        data_tests:
+          - not_null
+      - name: month_num
+        description: "The month number of the date_id"
+        data_tests:
+          - valid_range:
+              min_value: 1
+              max_value: 12
+      - name: month_name
+        description: "The month name of the date_id"
+        data_tests:
+          - accepted_values:
+              values: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+      - name: day_of_month
+        description: "The month day of the date_id"
+        data_tests:
+          - valid_range:
+              min_value: 1
+              max_value: 31
+      - name: day_of_week
+        description: "The week day of the date_id"
+        data_tests:
+          - valid_range:
+              min_value: 1
+              max_value: 7 
+      - name: day_name
+        description: "The day name of the date_id"
+        data_tests:
+          - accepted_values:
+              values: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
