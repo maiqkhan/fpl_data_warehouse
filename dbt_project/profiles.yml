@@ -1,0 +1,12 @@
+dbt_project:
+  outputs:
+    dev:
+      dbname: postgres
+      host: 137.184.169.238
+      pass: postgres
+      port: 5432
+      schema: fpl
+      threads: 1
+      type: postgres
+      user: postgres
+  target: dev
