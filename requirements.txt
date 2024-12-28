@@ -1,5 +1,6 @@
-dagster==1.8.13
-dagster-webserver==1.8.13
+dagster==1.9.6
+dagster-dbt==0.25.6
+dagster-webserver==1.9.6
 pandas==2.2.3
 python-dotenv==1.0.1
 SQLAlchemy==2.0.36
@@ -7,5 +8,5 @@ pyodbc==5.2.0
 psycopg2==2.9.10
 pyyaml==6.0.2
 pytest==8.3.3
-dbt-core==1.8.5
+dbt-core==1.8.9
 dbt-postgres==1.8.2
