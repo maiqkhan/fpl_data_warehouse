@@ -12,6 +12,7 @@ from typing import Dict, List
 import pandas as pd
 from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
+from sqlalchemy import inspect
 
 
 @asset(
@@ -25,13 +26,20 @@ def staging_dates_table(
 
     engine = fpl_server.connect_to_engine()
 
-    Base.metadata.create_all(engine, tables=[fpl_dates.__table__])
+    if inspect(engine).has_table(
+        fpl_dates.__tablename__, schema=fpl_dates.__table_args__["schema"]
+    ):
+        context.log.info("Yes Table exists")
+    else:
+        context.log.info("No table does not exist")
 
-    dates_df.sort_values(by=["date_id"]).to_sql(
-        name=fpl_dates.__tablename__,
-        schema=fpl_dates.__table_args__["schema"],
-        con=engine,
-        if_exists="append",
-        index=False,
-        chunksize=365,
-    )
+    # Base.metadata.create_all(engine, tables=[fpl_dates.__table__])
+
+    # dates_df.sort_values(by=["date_id"]).to_sql(
+    #     name=fpl_dates.__tablename__,
+    #     schema=fpl_dates.__table_args__["schema"],
+    #     con=engine,
+    #     if_exists="append",
+    #     index=False,
+    #     chunksize=365,
+    # )
