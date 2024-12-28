@@ -10,6 +10,8 @@ from dagster import (
     RunRequest,
 )
 
+from dagster_dbt import DbtCliResource
+
 from fpl_project.fpl_project.assets import (
     dates,
     players,
@@ -18,11 +20,17 @@ from fpl_project.fpl_project.assets import (
     teams,
     matches,
     staging,
+    dbt_assets,
 )
-from fpl_project.fpl_project.resources import postgres, fpl_api  # noqa: TID252
+from fpl_project.fpl_project.resources import (
+    postgres,
+    fpl_api,
+    dbt_resource,
+)  # noqa: TID252
+from pathlib import Path
 
 all_assets = load_assets_from_modules(
-    [players, raw, fixtures, teams, matches, dates, staging]
+    [players, raw, fixtures, teams, matches, dates, staging, dbt_assets]
 )
 all_asset_checks = load_asset_checks_from_modules([raw, players])
 all_assets_job = define_asset_job(
@@ -55,5 +63,10 @@ defs = Definitions(
             )
         ),
         "fpl_api": fpl_api.FplAPI(base_url="https://fantasy.premierleague.com/api/"),
+        "dbt": DbtCliResource(
+            project_dir=Path(__file__)
+            .joinpath("..", "..", "..", "dbt_project")
+            .resolve()
+        ),
     },
 )
