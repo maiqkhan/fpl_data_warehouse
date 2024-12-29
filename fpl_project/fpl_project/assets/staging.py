@@ -7,7 +7,7 @@ from dagster import (
 )
 from fpl_project.fpl_project.resources.fpl_api import FplAPI
 from fpl_project.fpl_project.resources.postgres import PostgresResource
-from fpl_project.fpl_project.assets.models import Base, fpl_dates
+from fpl_project.fpl_project.assets.models import Base, fpl_dates, stg_teams
 from fpl_project.fpl_project.assets.dates import generate_date_fields_array
 from typing import Dict, List
 import pandas as pd
@@ -23,7 +23,7 @@ def truncate_table(session: orm.Session, table_name: str, schema_name: str) -> N
 
 @asset(
     group_name="STAGING",
-    description="Staging tables for data model.",
+    description="Staging table for dim_date model.",
     kinds={"python", "postgres", "table"},
 )
 def staging_dates_table(
@@ -75,3 +75,36 @@ def staging_dates_table(
             index=False,
             chunksize=365,
         )
+
+
+@asset(
+    group_name="STAGING",
+    description="Staging table for dim_team model.",
+    kinds={"python", "postgres", "table"},
+)
+def staging_teams_table(teams: pd.DataFrame, fpl_server: PostgresResource) -> None:
+    engine = fpl_server.connect_to_engine()
+
+    table_name = stg_teams.__tablename__
+    schema_name = stg_teams.__table_args__["schema"]
+    table_inst = stg_teams.__table__
+
+    if inspect(engine).has_table(table_name, schema=schema_name):
+        with fpl_server.get_session() as session:
+            truncate_table(
+                session=session,
+                table_name=table_name,
+                schema_name=schema_name,
+            )
+
+    else:
+        Base.metadata.create_all(engine, tables=[table_inst])
+
+    teams.sort_values(by=["team_key"]).to_sql(
+        name=table_name,
+        schema=schema_name,
+        con=engine,
+        if_exists="append",
+        index=False,
+        chunksize=365,
+    )
