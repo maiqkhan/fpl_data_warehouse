@@ -30,8 +30,6 @@ def staging_dates_table(
     context: AssetExecutionContext, dates_df: pd.DataFrame, fpl_server: PostgresResource
 ) -> None:
 
-    date_ingest = dates_df.copy()
-
     engine = fpl_server.connect_to_engine()
 
     if inspect(engine).has_table(
@@ -51,6 +49,15 @@ def staging_dates_table(
 
             date_ingest = pd.DataFrame.from_records(today_dt_array)
 
+            date_ingest.to_sql(
+                name=fpl_dates.__tablename__,
+                schema=fpl_dates.__table_args__["schema"],
+                con=engine,
+                if_exists="append",
+                index=False,
+                chunksize=365,
+            )
+
         else:
             pass
 
@@ -58,11 +65,11 @@ def staging_dates_table(
         Base.metadata.create_all(engine, tables=[fpl_dates.__table__])
         context.log.info("table doesnt exists")
 
-    date_ingest.sort_values(by=["date_id"]).to_sql(
-        name=fpl_dates.__tablename__,
-        schema=fpl_dates.__table_args__["schema"],
-        con=engine,
-        if_exists="append",
-        index=False,
-        chunksize=365,
-    )
+        dates_df.sort_values(by=["date_id"]).to_sql(
+            name=fpl_dates.__tablename__,
+            schema=fpl_dates.__table_args__["schema"],
+            con=engine,
+            if_exists="append",
+            index=False,
+            chunksize=365,
+        )
