@@ -3,11 +3,11 @@ version: 2
 sources:
   - name: stg
     description: "Schema containing staging tables"
-    meta:
-      dagster:
-        asset_key: ["staging_dates_table"]
     tables:
       - name: dates
+        meta:
+          dagster:
+            asset_key: ["staging_dates_table"]
         description: "Staging table for date information, populated by Dagster pipeline"
         columns:
           - name: date_key
@@ -53,6 +53,9 @@ sources:
               - accepted_values:
                   values: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
       - name: teams
+        meta:
+          dagster:
+            asset_key: ["staging_teams_table"]
         description: "Staging table for team information, populated by Dagster pipeline"
         columns:
           - name: team_key  
