@@ -33,17 +33,18 @@ class stg_teams(Base):
     __tablename__ = "teams"
     __table_args__ = {"schema": "stg"}
 
-    id = Column(Integer, primary_key=True)
+    team_key = Column(Integer, primary_key=True)
+    team_id = Column(Integer, nullable=False)
+    season = Column(String(7), nullable=False)
     name = Column(String, nullable=False)
-    shortName = Column(String, nullable=False)
+    short_name = Column(String(3), nullable=False)
     strength = Column(Integer, nullable=False)
-    strengthOverallHome = Column(Integer, nullable=False)
-    strengthOverallAway = Column(Integer, nullable=False)
-    strengthAttackHome = Column(Integer, nullable=False)
-    strengthAttackAway = Column(Integer, nullable=False)
-    strengthDefenceHome = Column(Integer, nullable=False)
-    strengthDefenceAway = Column(Integer, nullable=False)
-    extract_dt = Column(Date, nullable=False)
+    strength_overall_home = Column(Integer, nullable=False)
+    strength_overall_away = Column(Integer, nullable=False)
+    strength_attack_home = Column(Integer, nullable=False)
+    strength_attack_away = Column(Integer, nullable=False)
+    strength_defence_home = Column(Integer, nullable=False)
+    strength_defence_away = Column(Integer, nullable=False)
 
 
 class stg_fixtures(Base):
