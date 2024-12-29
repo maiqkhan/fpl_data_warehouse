@@ -52,27 +52,21 @@ class stg_fixtures(Base):
     __tablename__ = "fixtures"
     __table_args__ = {"schema": "stg"}
 
-    id = Column(Integer, primary_key=True)
-    season = Column(String, nullable=False)
-    event = Column(
-        Integer, nullable=True
-    )  # Certain fixtures may be cancelled and not yet moved to another gameweek, so null must be allowed
-    finished = Column(
-        Boolean, nullable=False
-    )  # A fixture is either finished = True, or currently being played / not played yet = False
-    teamH = Column(
+    fixture_key = Column(Integer, primary_key=True)
+    fixture_id = Column(Integer, nullable=False)
+    season = Column(String(7), nullable=False)
+    event = Column(Integer, nullable=False)
+    finished = Column(Boolean, nullable=False)
+    team_h = Column(
         Integer,
         nullable=False,
     )  # All home team IDs must exist in the teams staging table
-    teamA = Column(
+    team_a = Column(
         Integer,
         nullable=False,
     )  # All away teams IDs must exist in the teams staging table
-    fixtureType = Column(String, nullable=False)
-    localKickoffTime = Column(
-        DateTime, nullable=True
-    )  # Certain fixtures may be cancelled and not yet rescheduled, so null must be allowed
-    localKickoffMonth = Column(String, nullable=True)
+    kickoff_time = Column(DateTime, nullable=False)
+    fixture_type = Column(String, nullable=False)
     extract_dt = Column(Date, nullable=False)
 
 
