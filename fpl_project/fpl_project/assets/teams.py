@@ -41,13 +41,12 @@ def teams(raw_teams_df: pd.DataFrame, epl_season: str) -> pd.DataFrame:
         ]
     ]
 
+    teams_output = teams_output.rename(columns={"id": "team_id"})
+
     teams_output["season"] = epl_season
 
-    teams_output["extract_dt"] = dt.today().date()
-
-    teams_output.to_csv(
-        rf"C:\Users\khanm375\Documents\fpl_data_warehouse\data\teams_{dt.now().strftime('Y-%m-%d %H-%M-%S')}.csv",
-        index=False,
+    teams_output["team_key"] = teams_output.apply(
+        lambda x: int(f"{x['season'][:4]}{x['season'][4:]}{x['team_id']}"), axis=1
     )
 
     return teams_output
