@@ -117,21 +117,28 @@ def fixtures(
         lambda x: generate_event_type(x["event"], x["kickoff_time"]), axis=1
     )
 
+    fixture_df["event"] = fixture_df["event"].fillna(0)
+
+    fixture_df["kickoff_time"] = fixture_df["kickoff_time"].fillna(
+        dt(year=1900, month=1, day=1)
+    )
+
     fixture_df["season"] = epl_season
+
+    fixture_df = fixture_df.rename(columns={"id": "fixture_id"})
+
+    fixture_df["fixture_key"] = fixture_df.apply(
+        lambda x: int(f"{x['season'][:4]}{x['season'][5:]}{x['fixture_id']}"), axis=1
+    )
 
     fixture_df["extract_dt"] = dt.today().date()
 
-    context.log.info(fixture_df["fixture_type"].unique())
-    context.log.info(fixture_df.columns)
-
-    fixture_df.to_csv(
-        rf"C:\Users\khanm375\Documents\fpl_data_warehouse\data\fixtures_{dt.now().strftime('Y-%m-%d %H-%M-%S')}.csv",
-        index=False,
-    )
+    context.log.info(fixture_df.isnull().any())
 
     return fixture_df[
         [
-            "id",
+            "fixture_key",
+            "fixture_id",
             "season",
             "event",
             "finished",
