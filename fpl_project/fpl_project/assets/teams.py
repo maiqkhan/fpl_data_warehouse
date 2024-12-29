@@ -49,4 +49,6 @@ def teams(raw_teams_df: pd.DataFrame, epl_season: str) -> pd.DataFrame:
         lambda x: int(f"{x['season'][:4]}{x['season'][4:]}{x['team_id']}"), axis=1
     )
 
+    teams_output["extract_dt"] = dt.today().date()
+
     return teams_output

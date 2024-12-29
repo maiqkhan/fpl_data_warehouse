@@ -45,6 +45,7 @@ class stg_teams(Base):
     strength_attack_away = Column(Integer, nullable=False)
     strength_defence_home = Column(Integer, nullable=False)
     strength_defence_away = Column(Integer, nullable=False)
+    extract_dt = Column(Date, nullable=False)
 
 
 class stg_fixtures(Base):
