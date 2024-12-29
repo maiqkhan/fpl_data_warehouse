@@ -24,7 +24,9 @@ def raw_teams_df(context: AssetExecutionContext, raw_teams: List[Dict]) -> pd.Da
     description="""Game data from FPL api bootstrap-static endpoint""",
     kinds={"python", "pandas"},
 )
-def teams(raw_teams_df: pd.DataFrame, epl_season: str) -> pd.DataFrame:
+def teams(
+    context: AssetExecutionContext, raw_teams_df: pd.DataFrame, epl_season: str
+) -> pd.DataFrame:
 
     teams_output = raw_teams_df[
         [
@@ -46,7 +48,7 @@ def teams(raw_teams_df: pd.DataFrame, epl_season: str) -> pd.DataFrame:
     teams_output["season"] = epl_season
 
     teams_output["team_key"] = teams_output.apply(
-        lambda x: int(f"{x['season'][:4]}{x['season'][4:]}{x['team_id']}"), axis=1
+        lambda x: int(f"{x['season'][:4]}{x['season'][5:]}{x['team_id']}"), axis=1
     )
 
     teams_output["extract_dt"] = dt.today().date()
