@@ -16,8 +16,8 @@ from dateutil.relativedelta import relativedelta
 from sqlalchemy import inspect, func, select, orm, text
 
 
-def truncate_table(session: orm.Session, table_name: str) -> None:
-    session.execute(text(f"TRUNCATE TABLE {table_name};"))
+def truncate_table(session: orm.Session, table_name: str, schema_name: str) -> None:
+    session.execute(text(f"TRUNCATE TABLE {schema_name}.{table_name};"))
     session.commit()
 
 
@@ -41,9 +41,11 @@ def staging_dates_table(
             ).scalar_one_or_none()
 
         if datetime.today().date() > max_stg_date:
-            context.log.info(f"add {datetime.today} to table")
-
-            truncate_table(session=session, table_name=fpl_dates.__tablename__)
+            truncate_table(
+                session=session,
+                table_name=fpl_dates.__tablename__,
+                schema_name=fpl_dates.__table_args__["schema"],
+            )
 
             today_dt_array = generate_date_fields_array([datetime.today()])
 
