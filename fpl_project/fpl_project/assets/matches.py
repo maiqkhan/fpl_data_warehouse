@@ -11,7 +11,7 @@ import pandas as pd
 
 
 @asset(
-    group_name="MATCH",
+    group_name="INTIAL_LOAD",
     description="""All match statistics for a given player""",
     kinds={"python", "pandas"},
 )
@@ -35,15 +35,15 @@ def raw_matches_df(
 
 
 @asset(
-    group_name="MATCH",
+    group_name="INTIAL_LOAD",
     description="""All match statistics for a given player""",
     kinds={"python", "pandas"},
 )
-def matches_df(
+def historical_matches_df(
     context: AssetExecutionContext,
     raw_matches_df: pd.DataFrame,
     fixtures: pd.DataFrame,
-) -> None:
+) -> pd.DataFrame:
 
     # context.log.info(raw_matches_df.columns)
 
@@ -51,7 +51,6 @@ def matches_df(
         "fixture_key",
         "fixture",
         "opponent_team",
-        "kickoff_time",
         "team_h_score",
         "team_a_score",
         "round",
@@ -63,13 +62,18 @@ def matches_df(
         "extract_dt",
     ]
 
-    match_stats = raw_matches_df.merge(
-        fixtures,
-        how="left",
-        left_on=["fixture"],
-        right_on=["fixture_id"],
-        validate="m:1",
-    ).drop(drop_cols, axis=1)
+    match_stats = (
+        raw_matches_df.drop("kickoff_time", axis=1)
+        .merge(
+            fixtures,
+            how="left",
+            left_on=["fixture"],
+            right_on=["fixture_id"],
+            validate="m:1",
+        )
+        .query("finished == True")
+        .drop(drop_cols, axis=1)
+    )
 
     match_stats["team_id"] = match_stats.apply(
         lambda x: x["team_h"] if x["was_home"] else x["team_a"], axis=1
