@@ -52,6 +52,7 @@ sources:
             data_tests:
               - accepted_values:
                   values: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+
       - name: teams
         meta:
           dagster:
@@ -127,3 +128,68 @@ sources:
             data_test:
               - unique
               - not_null
+              
+      - name: fixtures
+        meta:
+          dagster:
+            asset_key: ["staging_fixtures_table"]
+        description: "Staging table for fixture information, populated by Dagster pipeline"
+        columns:
+          - name: fixture_key  
+            description: "The primary key for the dimension table. A key represents the season followed with the fixture id."          
+            data_test:
+              - unique
+              - not_null
+          - name: fixture_id  
+            description: "The unique ID for a fixture within a given season."          
+            data_test:
+              - unique
+              - not_null
+              - valid_range:
+                  min_value: 1
+                  max_value: 380
+          - name: season  
+            description: "The given season the fixture is played in."          
+            data_test:
+              - unique
+              - not_null
+          - name: event  
+            description: "The given gameweek the fixture is played in."          
+            data_test:
+              - unique
+              - not_null
+              - valid_range:
+                  min_value: 0
+                  max_value: 38
+          - name: finished  
+            description: "An indicator for whether the fixture is completed, and all points assigned for the match."          
+            data_test:
+              - accepted_values:
+                  values: [True, False]
+          - name: team_h  
+            description: "The home team of a given fixture."          
+            data_test:
+              - valid_range:
+                  min_value: 1
+                  max_value: 20
+          - name: team_a  
+            description: "The away team of a given fixture."          
+            data_test:
+              - valid_range:
+                  min_value: 1
+                  max_value: 20
+          - name: kickoff_time  
+            description: "The exact time at when a fixture is set to kickoff. The time is represented in UTC format."          
+            data_test:
+              - unique
+              - not_null
+          - name: fixture_type  
+            description: "The category that a fixture is placed into."          
+            data_test:
+              - not_null
+          - name: extract_dt  
+            description: "The date that the fixture data was extracted from the FPL api."          
+            data_test:
+              - not_null
+
+
