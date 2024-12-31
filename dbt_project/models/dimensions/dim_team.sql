@@ -4,6 +4,7 @@
         unique_key='team_key',
         incremental_strategy='merge',
         merge_exclude_columns = ['team_id', 'season', 'name', 'short_name'],
+        on_schema_change='fail'
     ) }}
 
 with staging as (

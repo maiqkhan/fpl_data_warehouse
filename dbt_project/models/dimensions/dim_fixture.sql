@@ -4,6 +4,7 @@
         unique_key='fixture_key',
         incremental_strategy='merge',
         merge_exclude_columns = ['fixture_id', 'season'],
+        on_schema_change='fail'
     ) }}
 
 with staging as (
