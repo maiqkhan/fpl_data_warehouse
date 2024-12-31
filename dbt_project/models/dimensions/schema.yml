@@ -3,9 +3,9 @@ version: 2
 models:
   - name: dim_date
     config:
-        meta:
-          dagster:
-            group: DIMENSIONS
+      meta:
+        dagster:
+          group: DIMENSIONS
     description: "A dimension table that contains date fields"
     columns:
       - name: date_key
@@ -52,76 +52,120 @@ models:
               values: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
   - name: dim_team
     config:
-        meta:
-          dagster:
-            group: DIMENSIONS
+      meta:
+        dagster:
+          group: DIMENSIONS
     columns:
-        - name: team_key  
-          description: "The primary key for the dimension table. A key represents the season followed with team id."          
-          data_test:
+      - name: team_key  
+        description: "The primary key for the dimension table. A key represents the season followed with team id."          
+        data_tests:
+          - unique
+          - not_null
+      - name: team_id
+        description: "The unique ID for a team within a given season."          
+        data_tests:
+          - unique
+          - not_null
+          - valid_range:
+              min_value: 1
+              max_value: 20
+      - name: season
+        description: "The given season the team is currently in."          
+        data_tests:
+          - not_null
+      - name: full_name
+        description: "The full name of the team."          
+        data_tests:
+          - unique
+          - not_null
+      - name: short_name
+        description: "The abbreviated name of the team."          
+        data_tests:
+          - unique
+          - not_null
+      - name: strength_overall
+        description: "The overall strength of a team in a given season."          
+        data_tests:
+          - valid_range:
+              min_value: 1
+              max_value: 5
+      - name: strength_overall_home
+        description: "The overall strength of a team at home in a given season."          
+        data_tests:
+          - not_null
+      - name: strength_overall_away
+        description: "The overall strength of a team away from home in a given season."          
+        data_tests:
+          - not_null
+      - name: strength_attack_home
+        description: "The overall strength of a team's attack at home in a given season."          
+        data_tests:
+          - not_null
+      - name: strength_attack_away
+        description: "The overall strength of a team's attack away from home in a given season."          
+        data_tests:
+          - not_null
+      - name: strength_defence_home
+        description: "The overall strength of a team's defence at home in a given season."          
+        data_tests:
+          - not_null
+      - name: strength_defence_away
+        description: "The overall strength of a team's defence away from home in a given season."          
+        data_tests:
+          - not_null
+  - name: dim_fixture
+    config:
+      meta:
+        dagster:
+          group: DIMENSIONS
+    columns:
+        - name: fixture_key  
+          description: "The primary key for the dimension table. A key represents the season followed with the fixture id."          
+          data_tests:
             - unique
             - not_null
-        - name: team_id
-          description: "The unique ID for a team within a given season."          
-          data_test:
+        - name: fixture_id  
+          description: "The unique ID for a fixture within a given season."          
+          data_tests:
             - unique
             - not_null
+            - valid_range:
+                min_value: 1
+                max_value: 380
+        - name: season  
+          description: "The given season the fixture is played in."          
+          data_tests:
+            - not_null
+        - name: gameweek  
+          description: "The given gameweek the fixture is played in."          
+          data_tests:
+            - not_null
+            - valid_range:
+                min_value: 0
+                max_value: 38
+        - name: finished_ind
+          description: "An indicator for whether the fixture is completed, and all points assigned for the match."          
+          data_tests:
+            - accepted_values:
+                values: [true, false]
+        - name: team_h  
+          description: "The home team of a given fixture."          
+          data_tests:
             - valid_range:
                 min_value: 1
                 max_value: 20
-        - name: season
-          description: "The given season the team is currently in."          
-          data_test:
-            - unique
-            - not_null
-        - name: full_name
-          description: "The full name of the team."          
-          data_test:
-            - unique
-            - not_null
-        - name: short_name
-          description: "The abbreviated name of the team."          
-          data_test:
-            - unique
-            - not_null
-        - name: strength_overall
-          description: "The overall strength of a team in a given season."          
-          data_test:
+        - name: team_a  
+          description: "The away team of a given fixture."          
+          data_tests:
             - valid_range:
                 min_value: 1
-                max_value: 5
-        - name: strength_overall_home
-          description: "The overall strength of a team at home in a given season."          
-          data_test:
+                max_value: 20
+        - name: kickoff_time  
+          description: "The exact time at when a fixture is set to kickoff. The time is represented in UTC format."          
+          data_tests:
             - unique
             - not_null
-        - name: strength_overall_away
-          description: "The overall strength of a team away from home in a given season."          
-          data_test:
-            - unique
-            - not_null
-        - name: strength_attack_home
-          description: "The overall strength of a team's attack at home in a given season."          
-          data_test:
-            - unique
-            - not_null
-        - name: strength_attack_away
-          description: "The overall strength of a team's attack away from home in a given season."          
-          data_test:
-            - unique
-            - not_null
-        - name: strength_defence_home
-          description: "The overall strength of a team's defence at home in a given season."          
-          data_test:
-            - unique
-            - not_null
-        - name: strength_defence_away
-          description: "The overall strength of a team's defence away from home in a given season."          
-          data_test:
-            - unique
-            - not_null
-        - name: extract_dt
-          description: "The overall strength of a team's defence away from home in a given season."          
-          data_test:
-            - unique
+        - name: fixture_type  
+          description: "The category that a fixture is placed into."          
+          data_tests:
             - not_null
