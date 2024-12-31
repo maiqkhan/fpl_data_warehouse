@@ -35,8 +35,6 @@ models:
     stg:
       +schema: stg
       +materialized: table
-    dim:
+    dimensions:
       +schema: fpl
       +materialized: table
-    example:
-      +materialized: view
