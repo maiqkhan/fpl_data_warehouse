@@ -11,7 +11,7 @@ import pandas as pd
 
 
 @asset(
-    group_name="INTIAL_LOAD",
+    group_name="INITIAL_LOAD",
     description="""All match statistics for a given player""",
     kinds={"python", "pandas"},
 )
@@ -35,11 +35,11 @@ def raw_matches_df(
 
 
 @asset(
-    group_name="INTIAL_LOAD",
+    group_name="INITIAL_LOAD",
     description="""All match statistics for a given player""",
     kinds={"python", "pandas"},
 )
-def historical_matches_df(
+def matches_df(
     context: AssetExecutionContext,
     raw_matches_df: pd.DataFrame,
     fixtures: pd.DataFrame,
