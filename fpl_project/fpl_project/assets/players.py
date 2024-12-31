@@ -13,6 +13,15 @@ from typing import Dict, List
 from datetime import datetime as dt, timedelta as tmdelta
 
 
+def generate_expiry_date(
+    eff_dt, is_last_record, default_expiry=dt(year=2261, month=12, day=31).date()
+):
+    if is_last_record:
+        return default_expiry
+    else:
+        return eff_dt - tmdelta(days=1)
+
+
 @asset(
     group_name="PLAYER",
     description="Player payload from ",
@@ -54,12 +63,7 @@ def players(
 
     raw_player_df["season"] = epl_season
 
-    context.log.info(raw_player_df.columns)
-
-    raw_player_df.to_csv(
-        rf"C:\Users\khanm375\Documents\fpl_data_warehouse\data\players_{dt.now().strftime('Y-%m-%d %H-%M-%S')}.csv",
-        index=False,
-    )
+    raw_player_df = raw_player_df.rename(columns={"id": "player_id"})
 
     return raw_player_df
 
@@ -70,19 +74,106 @@ def players(
     description="Check that player ID is unique across players dataframe.",
 )
 def unique_player_check(
-    context: AssetCheckExecutionContext, player_df: pd.DataFrame
+    context: AssetCheckExecutionContext,
+    player_df: pd.DataFrame,
 ) -> AssetCheckResult:
 
-    if player_df.drop_duplicates(subset=["id"]).shape[0] != player_df.shape[0]:
+    if player_df.drop_duplicates(subset=["player_id"]).shape[0] != player_df.shape[0]:
         return AssetCheckResult(
             passed=False,
             metadata={
                 "dataframe_row_count": player_df.shape[0],
-                "unique_players": len(player_df["id"].unique()),
+                "unique_players": len(player_df["player_id"].unique()),
             },
         )
     else:
         return AssetCheckResult(passed=True)
+
+
+@asset(
+    group_name="INITIAL_LOAD",
+    description="Apply Type 2 Slowly Changing Dimension logic to historical player data",
+)
+def player_scd_type_2_df(
+    context: AssetExecutionContext,
+    matches_df: pd.DataFrame,
+    players: pd.DataFrame,
+) -> None:
+
+    player_hist_df = matches_df.merge(
+        players, how="inner", left_on="element", right_on="player_id", validate="m:1"
+    )[
+        [
+            "player_id",
+            "season",
+            "first_name",
+            "second_name",
+            "web_name",
+            "position",
+            "team_id",
+            "value",
+            "kickoff_time",
+        ]
+    ].sort_values(
+        by=["player_id", "kickoff_time"]
+    )
+
+    for col in ["player_id", "team_id", "value"]:
+        player_hist_df[f"{col}_change"] = (
+            player_hist_df[f"{col}"] != player_hist_df[f"{col}"].shift()
+        )
+
+    player_hist_df["new_record"] = (
+        player_hist_df["id_change"]
+        | player_hist_df["value_change"]
+        | player_hist_df["team_id_change"]
+    )
+
+    player_hist_df["eff_group"] = player_hist_df["new_record"].cumsum()
+
+    scd_player_history = (
+        player_hist_df.groupby("eff_group")
+        .agg(
+            player_id=("player_id", "first"),
+            season=("season", "first"),
+            first_name=("first_name", "first"),
+            last_name=("second_name", "first"),
+            web_name=("web_name", "first"),
+            position=("position", "first"),
+            price=("value", "first"),
+            team_id=("team_id", "first"),
+            effective_date=("kickoff_time", "first"),
+        )
+        .reset_index(drop=True)
+    )
+
+    scd_player_history["effective_date"] = scd_player_history["effective_date"].apply(
+        lambda x: x.date()
+    )
+
+    scd_player_history["is_last_record"] = (
+        scd_player_history.groupby("player_id")["effective_date"].transform("max")
+        == scd_player_history["effective_date"]
+    )
+
+    scd_player_history["next_effective_date"] = scd_player_history.groupby("player_id")[
+        "effective_date"
+    ].shift(-1)
+
+    scd_player_history["expiry_date"] = scd_player_history.apply(
+        lambda x: generate_expiry_date(x["next_effective_date"], x["is_last_record"]),
+        axis=1,
+    )
+
+    scd_player_history["current_ind"] = scd_player_history["is_last_record"].apply(
+        lambda x: 1 if x else 0
+    )
+
+    scd_player_history = scd_player_history.drop(
+        ["is_last_record", "next_effective_date"], axis=1
+    )
+
+    context.log.info(scd_player_history.query("player_id == 531"))
 
 
 @asset(
