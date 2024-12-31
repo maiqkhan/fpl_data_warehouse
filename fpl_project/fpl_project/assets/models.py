@@ -70,6 +70,21 @@ class stg_fixtures(Base):
     extract_dt = Column(Date, nullable=False)
 
 
+class stg_players(Base):
+    __tablename__ = "players"
+    __table_args__ = {"schema": "stg"}
+
+    player_id = Column(Integer, nullable=False, primary_key=True)
+    season = Column(String(7), nullable=False)
+    first_name = Column(String(100), nullable=False)
+    last_name = Column(String(100), nullable=False)
+    web_name = Column(String(50), nullable=False)
+    position = Column(String(10), nullable=False)
+    price = Column(Integer, nullable=False)
+    team_id = Column(Integer, nullable=False)
+    extract_dt = Column(Date, nullable=False)
+
+
 class stg_player_data(Base):
     __tablename__ = "player_data"
     __table_args__ = {"schema": "stg"}
@@ -187,13 +202,13 @@ class dim_player(Base):
     last_name = Column(String, nullable=False)
     web_name = Column(String, nullable=False)
     position = Column(String, nullable=False)
-    price = Column(Float, nullable=False)
+    price = Column(Integer, nullable=False)
     team_key = Column(
         Integer, ForeignKey(dim_team.team_key, ondelete="CASCADE"), nullable=False
     )
     effective_dt = Column(Date, nullable=False)
     expiry_dt = Column(Date, nullable=False)
-    current_ind = Column(Boolean, nullable=False)
+    current_ind = Column(Integer, nullable=False)
 
 
 class fact_match_stats(Base):
