@@ -45,8 +45,11 @@ def matches_df(
     fixtures: pd.DataFrame,
 ) -> None:
 
+    # context.log.info(raw_matches_df.columns)
+
     drop_cols = [
-        "id",
+        "fixture_key",
+        "fixture",
         "opponent_team",
         "kickoff_time",
         "team_h_score",
@@ -60,14 +63,18 @@ def matches_df(
         "extract_dt",
     ]
 
-    match_stats = (
-        raw_matches_df.drop("kickoff_time", axis=1)
-        .merge(
-            fixtures, how="left", left_on=["fixture"], right_on=["id"], validate="m:1"
-        )
-        .drop(drop_cols, axis=1)
-    )
+    match_stats = raw_matches_df.merge(
+        fixtures,
+        how="left",
+        left_on=["fixture"],
+        right_on=["fixture_id"],
+        validate="m:1",
+    ).drop(drop_cols, axis=1)
 
     match_stats["team_id"] = match_stats.apply(
         lambda x: x["team_h"] if x["was_home"] else x["team_a"], axis=1
     )
+
+    match_stats = match_stats.drop(columns=["team_h", "team_a"], axis=1)
+
+    return match_stats
