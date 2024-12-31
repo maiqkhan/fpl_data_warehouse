@@ -36,5 +36,4 @@ models:
       +schema: stg
       +materialized: table
     dimensions:
-      +schema: fpl
       +materialized: table
