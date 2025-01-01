@@ -12,6 +12,7 @@ from fpl_project.fpl_project.assets.models import (
     fpl_dates,
     stg_teams,
     stg_fixtures,
+    stg_players,
 )
 from fpl_project.fpl_project.assets.dates import generate_date_fields_array
 from typing import Dict, List
@@ -141,6 +142,42 @@ def staging_fixtures_table(
         Base.metadata.create_all(engine, tables=[table_inst])
 
     fixtures.sort_values(by=["fixture_key"]).to_sql(
+        name=table_name,
+        schema=schema_name,
+        con=engine,
+        if_exists="append",
+        index=False,
+        chunksize=380,
+    )
+
+
+@asset(
+    group_name="STAGING",
+    kinds={"python", "postgres", "table"},
+    description="Staging table for dim_player table",
+)
+def staging_player_table(
+    context: AssetExecutionContext, players: pd.DataFrame, fpl_server: PostgresResource
+) -> None:
+
+    engine = fpl_server.connect_to_engine()
+
+    table_name = stg_players.__tablename__
+    schema_name = stg_players.__table_args__["schema"]
+    table_inst = stg_players.__table__
+
+    if inspect(engine).has_table(table_name, schema=schema_name):
+        with fpl_server.get_session() as session:
+            truncate_table(
+                session=session,
+                table_name=table_name,
+                schema_name=schema_name,
+            )
+
+    else:
+        Base.metadata.create_all(engine, tables=[table_inst])
+
+    players.rename(columns={"team": "team_id"}).to_sql(
         name=table_name,
         schema=schema_name,
         con=engine,
