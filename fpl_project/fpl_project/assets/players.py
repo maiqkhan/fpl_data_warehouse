@@ -62,7 +62,11 @@ def players(
 
     raw_player_df["season"] = epl_season
 
-    raw_player_df = raw_player_df.rename(columns={"id": "player_id"})
+    raw_player_df = raw_player_df.rename(
+        columns={"id": "player_id", "second_name": "last_name", "now_cost": "price"}
+    )
+
+    raw_player_df["extract_dt"] = dt.today().date()
 
     return raw_player_df
 
@@ -107,7 +111,7 @@ def player_scd_type_2_df(
             "player_id",
             "season",
             "first_name",
-            "second_name",
+            "last_name",
             "web_name",
             "position",
             "team_id",
@@ -137,7 +141,7 @@ def player_scd_type_2_df(
             player_id=("player_id", "first"),
             season=("season", "first"),
             first_name=("first_name", "first"),
-            last_name=("second_name", "first"),
+            last_name=("last_name", "first"),
             web_name=("web_name", "first"),
             position=("position", "first"),
             price=("value", "first"),
