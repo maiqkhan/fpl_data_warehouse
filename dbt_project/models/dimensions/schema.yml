@@ -3,6 +3,8 @@ version: 2
 models:
   - name: dim_date
     config:
+      contract:
+        enforced: true
       meta:
         dagster:
           group: DIMENSIONS
@@ -10,59 +12,75 @@ models:
     columns:
       - name: date_key
         description: "The primary key for the dimension table. A date represented in integer format."
+        data_type: int  
+        constraints:
+          - type: primary_key
         data_tests:
           - unique
           - not_null
       - name: date_id
         description: "A date represented in ISO format."
+        data_type: int  
         data_tests:
           - unique
           - not_null
       - name: year
         description: "The year of the date_id"
+        data_type: int  
         data_tests:
           - not_null
       - name: month_num
         description: "The month number of the date_id"
+        data_type: int  
         data_tests:
           - valid_range:
               min_value: 1
               max_value: 12
       - name: month_name
         description: "The month name of the date_id"
+        data_type: varchar(10)  
         data_tests:
           - accepted_values:
               values: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
       - name: day_of_month
         description: "The month day of the date_id"
+        data_type: int  
         data_tests:
           - valid_range:
               min_value: 1
               max_value: 31
       - name: day_of_week
         description: "The week day of the date_id"
+        data_type: int  
         data_tests:
           - valid_range:
               min_value: 1
               max_value: 7 
       - name: day_name
         description: "The day name of the date_id"
+        data_type: varchar(10)  
         data_tests:
           - accepted_values:
               values: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
   - name: dim_team
     config:
+      contract:
+        enforced: true
       meta:
         dagster:
           group: DIMENSIONS
     columns:
       - name: team_key  
-        description: "The primary key for the dimension table. A key represents the season followed with team id."          
+        description: "The primary key for the dimension table. A key represents the season followed with team id." 
+        data_type: int  
+        constraints:
+          - type: primary_key       
         data_tests:
           - unique
           - not_null
       - name: team_id
-        description: "The unique ID for a team within a given season."          
+        description: "The unique ID for a team within a given season."   
+        data_type: int       
         data_tests:
           - unique
           - not_null
@@ -70,62 +88,78 @@ models:
               min_value: 1
               max_value: 20
       - name: season
-        description: "The given season the team is currently in."          
+        description: "The given season the team is currently in."   
+        data_type: char(7)
         data_tests:
           - not_null
       - name: full_name
-        description: "The full name of the team."          
+        description: "The full name of the team."  
+        data_type: varchar(50)
         data_tests:
           - unique
           - not_null
       - name: short_name
-        description: "The abbreviated name of the team."          
+        description: "The abbreviated name of the team."    
+        data_type: char(3)
         data_tests:
           - unique
           - not_null
       - name: strength_overall
-        description: "The overall strength of a team in a given season."          
+        description: "The overall strength of a team in a given season."  
+        data_type: int          
         data_tests:
           - valid_range:
               min_value: 1
               max_value: 5
       - name: strength_overall_home
-        description: "The overall strength of a team at home in a given season."          
+        description: "The overall strength of a team at home in a given season."  
+        data_type: int          
         data_tests:
           - not_null
       - name: strength_overall_away
-        description: "The overall strength of a team away from home in a given season."          
+        description: "The overall strength of a team away from home in a given season."  
+        data_type: int          
         data_tests:
           - not_null
       - name: strength_attack_home
-        description: "The overall strength of a team's attack at home in a given season."          
+        description: "The overall strength of a team's attack at home in a given season."  
+        data_type: int          
         data_tests:
           - not_null
       - name: strength_attack_away
-        description: "The overall strength of a team's attack away from home in a given season."          
+        description: "The overall strength of a team's attack away from home in a given season."  
+        data_type: int          
         data_tests:
           - not_null
       - name: strength_defence_home
-        description: "The overall strength of a team's defence at home in a given season."          
+        description: "The overall strength of a team's defence at home in a given season."  
+        data_type: int          
         data_tests:
           - not_null
       - name: strength_defence_away
-        description: "The overall strength of a team's defence away from home in a given season."          
+        description: "The overall strength of a team's defence away from home in a given season."  
+        data_type: int          
         data_tests:
           - not_null
   - name: dim_fixture
     config:
+      contract:
+        enforced: true
       meta:
         dagster:
           group: DIMENSIONS
     columns:
         - name: fixture_key  
-          description: "The primary key for the dimension table. A key represents the season followed with the fixture id."          
+          description: "The primary key for the dimension table. A key represents the season followed with the fixture id." 
+          data_type: int  
+          constraints:
+            - type: primary_key         
           data_tests:
             - unique
             - not_null
         - name: fixture_id  
-          description: "The unique ID for a fixture within a given season."          
+          description: "The unique ID for a fixture within a given season."   
+          data_type: int         
           data_tests:
             - unique
             - not_null
@@ -133,39 +167,128 @@ models:
                 min_value: 1
                 max_value: 380
         - name: season  
-          description: "The given season the fixture is played in."          
+          description: "The given season the fixture is played in."     
+          data_type: char(7)       
           data_tests:
             - not_null
         - name: gameweek  
-          description: "The given gameweek the fixture is played in."          
+          description: "The given gameweek the fixture is played in." 
+          data_type: int           
           data_tests:
             - not_null
             - valid_range:
                 min_value: 0
                 max_value: 38
         - name: finished_ind
-          description: "An indicator for whether the fixture is completed, and all points assigned for the match."          
+          description: "An indicator for whether the fixture is completed, and all points assigned for the match." 
+          data_type: boolean           
           data_tests:
             - accepted_values:
                 values: [true, false]
         - name: team_h  
-          description: "The home team of a given fixture."          
+          description: "The home team of a given fixture."  
+          data_type: int          
           data_tests:
             - valid_range:
                 min_value: 1
                 max_value: 20
         - name: team_a  
-          description: "The away team of a given fixture."          
+          description: "The away team of a given fixture."   
+          data_type: int         
           data_tests:
             - valid_range:
                 min_value: 1
                 max_value: 20
         - name: kickoff_time  
-          description: "The exact time at when a fixture is set to kickoff. The time is represented in UTC format."          
+          description: "The exact time at when a fixture is set to kickoff. The time is represented in UTC format."     
+          data_type: timestamp       
           data_tests:
             - unique
             - not_null
         - name: fixture_type  
-          description: "The category that a fixture is placed into."          
+          description: "The category that a fixture is placed into."         
+          data_type: varchar(50) 
           data_tests:
             - not_null
+  - name: dim_player
+    config:
+      contract:
+        enforced: true
+      meta:
+        dagster:
+          group: DIMENSIONS
+    columns:
+        - name: player_key  
+          description: "The primary key for the dimension table. A key represents the most recent version of the player's information." 
+          data_type: int  
+          constraints:
+            - type: primary_key         
+          data_tests:
+            - unique
+            - not_null
+        - name: player_id  
+          description: "The unique ID for a player within a given season."   
+          data_type: int         
+          data_tests:
+            - unique
+            - not_null
+            - valid_range:
+                min_value: 1
+                max_value: 1000
+        - name: season  
+          description: "The given season the player is playing in."     
+          data_type: char(7)       
+          data_tests:
+            - not_null
+        - name: first_name  
+          description: "The first name of the player." 
+          data_type: varchar(100)           
+          data_tests:
+            - not_null
+        - name: last_name
+          description: "The last name of the player." 
+          data_type: varchar(100)           
+          data_tests:
+            - not_null
+        - name: web_name  
+          description: "The fpl website name of the player."  
+          data_type: varchar(100)             
+          data_tests:
+            - not_null
+        - name: position  
+          description: "The position the player is playing within the season."   
+          data_type: varchar(10)         
+          data_tests:
+            - accepted_values:
+                values: ['Goalkeeper', 'Defender', 'Midfielder', 'Forward']
+        - name: price  
+          description: "The price of the player within the effective period."     
+          data_type: int       
+          data_tests:
+            - not_null
+        - name: team_key  
+          description: "The foreign key referencing the team_key column in the dim_team table."         
+          data_type: int
+          constraints:
+            - type: foreign_key
+              expression: "{{ target.schema }}.dim_team (team_key)"   
+          data_tests:
+            - not_null
+        - name: effective_dt  
+          description: "The start date for the specific set of values that are valid for a player."         
+          data_type: date
+          data_tests:
+            - not_null
+        - name: expiry_dt  
+          description: "The end date for the specific set of values that are valid for a player."         
+          data_type: date
+          data_tests:
+            - not_null
+        - name: current_ind  
+          description: "The end date for the specific set of values that are valid for a player."         
+          data_type: int
+          data_tests:
+            - accepted_values:
+                values: [0, 1]
+
+        
