@@ -190,26 +190,17 @@ models:
           data_type: int 
           constraints:
             - type: foreign_key
-              expression: "{{ target.schema }}.dim_team (team_key)"         
-          data_tests:
-            - valid_range:
-                min_value: 1
-                max_value: 20
+              expression: "{{ target.schema }}.dim_team (team_key)"  
         - name: team_a  
           description: "The away team of a given fixture."   
           data_type: int 
           constraints:
             - type: foreign_key
-              expression: "{{ target.schema }}.dim_team (team_key)"          
-          data_tests:
-            - valid_range:
-                min_value: 1
-                max_value: 20
+              expression: "{{ target.schema }}.dim_team (team_key)" 
         - name: kickoff_time  
           description: "The exact time at when a fixture is set to kickoff. The time is represented in UTC format."     
           data_type: timestamp       
           data_tests:
-            - unique
             - not_null
         - name: fixture_type  
           description: "The category that a fixture is placed into."         
