@@ -171,24 +171,17 @@ class dim_fixture(Base):
     fixture_key = Column(Integer, primary_key=True, autoincrement=True)
     fixture_id = Column(Integer, nullable=False)
     season = Column(String, nullable=False)
-    gameweek = Column(
-        Integer
-    )  # Certain fixtures may be cancelled and not yet moved to another gameweek, so null must be allowed
-    fixture_type = Column(String, nullable=False)
+    gameweek = Column(Integer, nullable=False)
     finished_ind = Column(Boolean, nullable=False)
-    local_kickoff_datetime = Column(
-        DateTime, nullable=True
-    )  # Certain fixtures may be cancelled and not yet rescheduled, so null must be allowed
-    local_kickoff_month = Column(
-        String, nullable=True
-    )  # Certain fixtures may be cancelled and not yet rescheduled, so null must be allowed
-    team_key = Column(
+    home_team_key = Column(
         Integer, ForeignKey(dim_team.team_key, ondelete="CASCADE"), nullable=False
     )
-    opponent_key = Column(
+    away_team_key = Column(
         Integer, ForeignKey(dim_team.team_key, ondelete="CASCADE"), nullable=False
     )
-    was_home_ind = Column(Boolean, nullable=False)
+    kickoff_time = Column(DateTime, nullable=False)
+
+    fixture_type = Column(String, nullable=False)
 
 
 class dim_player(Base):
