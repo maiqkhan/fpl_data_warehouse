@@ -20,7 +20,7 @@ models:
           - not_null
       - name: date_id
         description: "A date represented in ISO format."
-        data_type: int  
+        data_type: date  
         data_tests:
           - unique
           - not_null
@@ -38,7 +38,7 @@ models:
               max_value: 12
       - name: month_name
         description: "The month name of the date_id"
-        data_type: varchar(10)  
+        data_type: varchar(9)  
         data_tests:
           - accepted_values:
               values: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
@@ -58,7 +58,7 @@ models:
               max_value: 7 
       - name: day_name
         description: "The day name of the date_id"
-        data_type: varchar(10)  
+        data_type: varchar(9)  
         data_tests:
           - accepted_values:
               values: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
