@@ -22,6 +22,10 @@ from dateutil.relativedelta import relativedelta
 from sqlalchemy import inspect, func, select, orm, text
 
 
+def table_exists(engine, table_name: str, schema: str = "dbo"):
+    return inspect(engine).has_table(table_name=table_name, schema=schema)
+
+
 def truncate_table(session: orm.Session, table_name: str, schema_name: str) -> None:
     session.execute(text(f"TRUNCATE TABLE {schema_name}.{table_name};"))
     session.commit()
