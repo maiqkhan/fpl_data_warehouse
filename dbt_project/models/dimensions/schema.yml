@@ -185,18 +185,22 @@ models:
           data_tests:
             - accepted_values:
                 values: [true, false]
-        - name: team_h  
+        - name: home_team_key  
           description: "The home team of a given fixture."  
           data_type: int 
           constraints:
             - type: foreign_key
-              expression: "{{ target.schema }}.dim_team (team_key)"  
-        - name: team_a  
+              expression: "{{ target.schema }}.dim_team (team_key)" 
+          data_tests:
+            - not_null 
+        - name: away_team_key  
           description: "The away team of a given fixture."   
           data_type: int 
           constraints:
             - type: foreign_key
               expression: "{{ target.schema }}.dim_team (team_key)" 
+          data_tests:
+            - not_null
         - name: kickoff_time  
           description: "The exact time at when a fixture is set to kickoff. The time is represented in UTC format."     
           data_type: timestamp       

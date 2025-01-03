@@ -8,17 +8,30 @@
     ) }}
 
 with staging as (
-    select * from {{ source('stg', 'fixtures')}}
+    select 
+    fixture_source.fixture_key 
+    ,fixture_source.fixture_id 
+    ,fixture_source.season 
+    ,fixture_source.event as gameweek 
+    ,fixture_source.finished as finished_ind
+    ,home_team.team_key as home_team_key
+    ,away_team.team_key as away_team_key
+    ,fixture_source.kickoff_time
+    ,fixture_source.fixture_type    
+    
+    FROM {{ source('stg', 'fixtures')}} as fixture_source
+    LEFT JOIN {{ ref('dim_team')}} as home_team on fixture_source.team_h = home_team.team_id and fixture_source.season = home_team.season
+    LEFT JOIN {{ ref('dim_team')}} as away_team on fixture_source.team_a = away_team.team_id and fixture_source.season = away_team.season
 )
 
 select 
 fixture_key
 ,fixture_id
 ,season
-,"event" as gameweek
-,finished as finished_ind
-,cast(concat(substr(season, 1,4), substr(season, 6,2), team_h) as int) as team_h
-,cast(concat(substr(season, 1,4), substr(season, 6,2), team_a) as int) as team_a
+,gameweek
+,finished_ind
+,home_team_key
+,away_team_key
 ,kickoff_time
 ,fixture_type
 from 
