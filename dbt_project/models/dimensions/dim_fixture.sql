@@ -17,8 +17,8 @@ fixture_key
 ,season
 ,"event" as gameweek
 ,finished as finished_ind
-,team_h
-,team_a
+,cast(concat(substr(season, 1,4), substr(season, 6,2), team_h) as int) as team_h
+,cast(concat(substr(season, 1,4), substr(season, 6,2), team_a) as int) as team_a
 ,kickoff_time
 ,fixture_type
 from 

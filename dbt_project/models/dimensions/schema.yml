@@ -187,14 +187,20 @@ models:
                 values: [true, false]
         - name: team_h  
           description: "The home team of a given fixture."  
-          data_type: int          
+          data_type: int 
+          constraints:
+            - type: foreign_key
+              expression: "{{ target.schema }}.dim_team (team_key)"         
           data_tests:
             - valid_range:
                 min_value: 1
                 max_value: 20
         - name: team_a  
           description: "The away team of a given fixture."   
-          data_type: int         
+          data_type: int 
+          constraints:
+            - type: foreign_key
+              expression: "{{ target.schema }}.dim_team (team_key)"          
           data_tests:
             - valid_range:
                 min_value: 1
