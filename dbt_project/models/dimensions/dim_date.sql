@@ -14,6 +14,6 @@ staging
 
 {% if is_incremental() %}
 
-where date_key >= (select coalesce(max(date_key),19000101) from {{ this }} )
+where date_key > (select coalesce(max(date_key),19000101) from {{ this }} )
 
 {% endif %}
