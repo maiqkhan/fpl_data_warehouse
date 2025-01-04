@@ -289,5 +289,179 @@ models:
           data_tests:
             - accepted_values:
                 values: [0, 1]
+  - name: fact_match_stats
+    config:
+      meta:
+        dagster:
+          group: FACTS
+    constraints:
+      - type: primary_key
+        columns: [fixture_key, player_key]    
+    columns:
+        - name: extract_dt_key  
+          description: "The extraction date key on which the data was pulled from the FPL API." 
+          data_type: int     
+          constraints: 
+            - type: foreign_key
+              expression: "{{ target.schema }}.dim_date (date_key)"       
+          data_tests:
+            - not_null
+        - name: player_key  
+          description: "The current player key from dim_player that represents player information for the given fixture."   
+          data_type: int   
+          constraints:
+            - type: foreign_key
+              expression: "{{ target.schema }}.dim_player (player_key)"        
+          data_tests:
+            - not_null
+        - name: fixture_key  
+          description: "The fixture for which a player's stats are being measured for."     
+          data_type: int      
+          constraints: 
+            - type: foreign_key
+              expression: "{{ target.schema }}.dim_fixture (fixture_key)"  
+          data_tests:
+            - not_null
+        - name: start_ind 
+          description: "An indicator of whether the player has started a given fixture." 
+          data_type: int        
+          data_tests:
+              - not_null
+              - valid_range:
+                  min_value: 0
+                  max_value: 1
+        - name: minutes_played
+          description: "The total minutes a player has played within a given fixture." 
+          data_type: int  
+          data_tests:
+            - not_null
+        - name: selected_by  
+          description: "The number of FPL players that has selected the player for a given fixture."  
+          data_type: int            
+          data_tests:
+            - not_null
+        - name: bonus_points_system_value  
+          description: "The value from the bonus points system a player has registered within a given fixture."   
+          data_type: int         
+          data_tests:
+            - not_null
+        - name: bonus_points  
+          description: "The total FPL bonus points a player has registered within a given fixture."     
+          data_type: int       
+          data_tests:
+            - not_null
+        - name: total_points  
+          description: "The total FPL points a player has registered within a given fixture."         
+          data_type: int 
+          data_tests:
+            - not_null
+        - name: goals_scored  
+          description: "The number of goals a player has scored within a given fixture."         
+          data_type: int
+          data_tests:
+            - not_null
+        - name: penalties_missed  
+          description: "The number of penalties a player has missed within a given fixture."         
+          data_type: int
+          data_tests:
+            - not_null
+        - name: expected_goals  
+          description: "The expected goals a player has registered within a given fixture."         
+          data_type: float
+          data_tests:
+            - not_null
+        - name: assists  
+          description: "The number of assists a player has registered within a given fixture."         
+          data_type: int
+          data_tests:
+            - not_null
+        - name: expected_assists  
+          description: "The expected assists a player has registered within a given fixture."         
+          data_type: float
+          data_tests:
+            - not_null
+        - name: expected_goal_involvements  
+          description: "The expected goal involvements a player has registered within a given fixture."         
+          data_type: float
+          data_tests:
+            - not_null
+        - name: clean_sheet_ind 
+          description: "An indicator of whether the player has registered a clean sheet in a given fixture."         
+          data_type: int
+          data_tests:
+              - not_null
+              - valid_range:
+                  min_value: 0
+                  max_value: 1
+        - name: saves  
+          description: "The number of saves a player has registered within a given fixture."         
+          data_type: int
+          data_tests:
+            - not_null
+        - name: penalties_saved  
+          description: "The number of penalties a player has saved within a given fixture."         
+          data_type: int
+          data_tests:
+            - not_null
+        - name: own_goals  
+          description: "The number of own goals a player has conceded within a given fixture."         
+          data_type: int
+          data_tests:
+            - not_null
+        - name: goals_conceded  
+          description: "The number of goals a player has conceded within a given fixture."         
+          data_type: int
+          data_tests:
+            - not_null
+        - name: expected_goals_conceded  
+          description: "The expected goals a player has conceded within a given fixture."         
+          data_type: float
+          data_tests:
+            - not_null
+        - name: yellow_cards  
+          description: "The number of yellow cards a player has registered within a given fixture."         
+          data_type: int
+          data_tests:
+            - not_null
+        - name: red_cards  
+          description: "The number of red cards a player has registered within a given fixture."         
+          data_type: int
+          data_tests:
+            - not_null
+        - name: influence  
+          description: "The influence system value a player has registered within a given fixture."         
+          data_type: float
+          data_tests:
+            - not_null
+        - name: creativity  
+          description: "The creativity system value a player has registered within a given fixture."         
+          data_type: float
+          data_tests:
+            - not_null
+        - name: threat  
+          description: "The threat system value a player has registered within a given fixture."         
+          data_type: float
+          data_tests:
+            - not_null
+        - name: ict_index  
+          description: "The ICT index a player has registered within a given fixture."         
+          data_type: float
+          data_tests:
+            - not_null
+        - name: transfers_in  
+          description: "The number of FPL users that have transferred in a player for a given fixture."         
+          data_type: int
+          data_tests:
+            - not_null
+        - name: transfers_out  
+          description: "The number of FPL users that have transferred out a player for a given fixture."         
+          data_type: int
+          data_tests:
+            - not_null
+        - name: transfers_balance  
+          description: "The net transfers of a player withen a given gameweek."         
+          data_type: int
+          data_tests:
+            - not_null
 
-        
+      
