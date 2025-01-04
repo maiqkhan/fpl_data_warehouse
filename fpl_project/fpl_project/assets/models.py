@@ -66,7 +66,7 @@ class stg_fixtures(Base):
         nullable=False,
     )  # All away teams IDs must exist in the teams staging table
     kickoff_time = Column(DateTime, nullable=False)
-    fixture_type = Column(String, nullable=False)
+    fixture_type = Column(String(50), nullable=False)
     extract_dt = Column(Date, nullable=False)
 
 
