@@ -238,6 +238,145 @@ sources:
             description: "The date that the player data was extracted from the FPL api."          
             data_test:
               - not_null
-
+      - name: matches
+        meta:
+          dagster:
+            asset_key: ["staging_matches_table"]
+        description: "Staging table for match information, populated by Dagster pipeline"
+        columns:
+          - name: player_id  
+            description: "The id of a given player within a given season."          
+            data_test:
+              - not_null
+          - name: fixture_id  
+            description: "The id of a given fixture within a given season."          
+            data_test:
+              - not_null
+          - name: assists  
+            description: "The number of assists a player has registered within a given fixture."          
+            data_test:
+              - not_null
+          - name: penalties_saved  
+            description: "The number of penalties a player has saved within a given fixture."          
+            data_test:
+              - not_null
+          - name: saves  
+            description: "The number of saves a player has registered within a given fixture."          
+            data_test:
+              - not_null
+          - name: ict_index  
+            description: "The ICT index a player has registered within a given fixture."          
+            data_test:
+              - not_null
+          - name: expected_goal_involvements  
+            description: "The expected goal involvements a player has registered within a given fixture."          
+            data_test:
+              - not_null
+          - name: transfers_balance  
+            description: "The net transfers of a player withen a given gameweek."          
+            data_test:
+              - not_null
+          - name: total_points  
+            description: "The total FPL points a player has registered within a given fixture."          
+            data_test:
+              - not_null
+          - name: clean_sheets  
+            description: "An indicator of whether the player has registered a clean sheet in a given fixture."          
+            data_test:
+              - not_null
+              - valid_range:
+                  min_value: 0
+                  max_value: 1
+          - name: penalties_missed  
+            description: "The number of penalties a player has missed within a given fixture."          
+            data_test:
+              - not_null
+          - name: bonus  
+            description: "The total FPL bonus points a player has registered within a given fixture."          
+            data_test:
+              - not_null
+          - name: starts  
+            description: "An indicator of whether the player has started a given fixture."          
+            data_test:
+              - not_null
+              - valid_range:
+                  min_value: 0
+                  max_value: 1
+          - name: expected_goals_conceded  
+            description: "The expected goals a player has conceded within a given fixture."          
+            data_test:
+              - not_null
+          - name: selected  
+            description: "The number of FPL players that has selected the player for a given fixture."          
+            data_test:
+              - not_null
+          - name: season  
+            description: "The season that the fixture is being played in."          
+            data_test:
+              - not_null
+          - name: goals_conceded  
+            description: "The number of goals a player has conceded within a given fixture."          
+            data_test:
+              - not_null
+          - name: yellow_cards  
+            description: "The number of yellow cards a player has registered within a given fixture."          
+            data_test:
+              - not_null
+          - name: bps  
+            description: "The value from the bonus points system a player has registered within a given fixture."          
+            data_test:
+              - not_null
+          - name: expected_goals  
+            description: "The expected goals a player has registered within a given fixture."          
+            data_test:
+              - not_null
+          - name: value  
+            description: "The cost of a player within a given fixture."          
+            data_test:
+              - not_null
+          - name: transfers_in  
+            description: "The number of FPL users that have transferred in a player for a given fixture."          
+            data_test:
+              - not_null
+          - name: minutes  
+            description: "The total minutes a player has played within a given fixture."          
+            data_test:
+              - not_null
+          - name: own_goals  
+            description: "The number of own goals a player has conceded within a given fixture."          
+            data_test:
+              - not_null
+          - name: red_cards  
+            description: "The number of red cards a player has registered within a given fixture."          
+            data_test:
+              - not_null
+          - name: influence  
+            description: "The influence system value a player has registered within a given fixture."          
+            data_test:
+              - not_null
+          - name: expected_assists  
+            description: "The expected assists a player has registered within a given fixture."          
+            data_test:
+              - not_null
+          - name: transfers_out  
+            description: "The number of FPL users that have transferred out a player for a given fixture."          
+            data_test:
+              - not_null
+          - name: extract_dt  
+            description: "The extraction date of the match data for a given fixture."          
+            data_test:
+              - not_null
+          - name: goals_scored  
+            description: "The number of goals a player has scored within a given fixture."          
+            data_test:
+              - not_null
+          - name: threat  
+            description: "The threat system value a player has registered within a given fixture."          
+            data_test:
+              - not_null
+          - name: creativity  
+            description: "The creativity system value a player has registered within a given fixture."          
+            data_test:
+              - not_null
 
 
