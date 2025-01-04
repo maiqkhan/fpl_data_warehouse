@@ -101,12 +101,9 @@ def unique_player_check(
 def player_scd_type_2_df(
     context: AssetExecutionContext,
     matches_df: pd.DataFrame,
-    players: pd.DataFrame,
 ) -> pd.DataFrame:
 
-    player_hist_df = matches_df.merge(
-        players, how="inner", left_on="element", right_on="player_id", validate="m:1"
-    )[
+    player_hist_df = matches_df[
         [
             "player_id",
             "season",
@@ -118,9 +115,7 @@ def player_scd_type_2_df(
             "value",
             "kickoff_time",
         ]
-    ].sort_values(
-        by=["player_id", "kickoff_time"]
-    )
+    ].sort_values(by=["player_id", "kickoff_time"])
 
     for col in ["player_id", "team_id", "value"]:
         player_hist_df[f"{col}_change"] = (
