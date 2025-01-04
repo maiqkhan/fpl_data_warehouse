@@ -37,7 +37,24 @@ all_assets_job = define_asset_job(
     name="initial_job", selection=["*fixtures", "*players", "*teams"]
 )
 
+
+get_raw_data = define_asset_job(
+    name="GET_RAW_API_DATA", selection=AssetSelection.groups("RAW_DATA")
+)
+
+table_source_data = define_asset_job(
+    name="BUILD_TABLE_SOURCE_DATA",
+    selection=AssetSelection.groups("FIXTURES")
+    | AssetSelection.groups("TEAMS")
+    | AssetSelection.groups("PLAYER")
+    | AssetSelection.groups("DATE"),
+)
+
 initial_load_job = define_asset_job(name="initial_load", selection=["*matches_df"])
+
+refresh_dimensions = define_asset_job(
+    name="REFRESH_DIMENSIONS", selection=["*dim_player", "*dim_fixture", "*dim_date"]
+)
 
 
 @schedule(job=all_assets_job, cron_schedule="*/5 * * * *")
@@ -50,7 +67,13 @@ def test_schedule():
 defs = Definitions(
     assets=all_assets,
     asset_checks=all_asset_checks,
-    jobs=[all_assets_job, initial_load_job],
+    jobs=[
+        all_assets_job,
+        initial_load_job,
+        get_raw_data,
+        table_source_data,
+        refresh_dimensions,
+    ],
     schedules=[test_schedule],
     resources={
         "fpl_server": postgres.PostgresResource(
