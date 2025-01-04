@@ -102,7 +102,7 @@ class stg_matches(Base):
     penalties_missed = Column(Integer, nullable=False)
     bonus = Column(Integer, nullable=False)
     starts = Column(Integer, nullable=False)
-    expected_goals_conceded = Column(Integer, nullable=False)
+    expected_goals_conceded = Column(Float, nullable=False)
     selected = Column(Integer, nullable=False)
     season = Column(String(7), nullable=False)
     goals_conceded = Column(Integer, nullable=False)
