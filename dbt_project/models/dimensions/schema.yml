@@ -213,6 +213,8 @@ models:
             - not_null
   - name: dim_player
     config:
+      contract:
+        enforced: true
       meta:
         dagster:
           group: DIMENSIONS
