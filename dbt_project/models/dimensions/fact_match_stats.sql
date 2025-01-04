@@ -38,7 +38,7 @@ d_date.date_key as extract_dt_key
 ,goals_scored
 ,threat
 ,creativity
-from from {{ source('stg', 'matches')}} as source 
+FROM {{ source('stg', 'matches')}} as source 
 LEFT JOIN {{ ref('dim_date')}} as d_date on source.extract_dt = d_date.date_id
 LEFT JOIN {{ ref('dim_fixture')}} as d_fixture on source.fixture_id = d_fixture.fixture_id 
     and source.season = d_fixture.season
