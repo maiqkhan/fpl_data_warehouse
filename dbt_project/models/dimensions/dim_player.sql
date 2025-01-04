@@ -69,7 +69,7 @@ records_to_expire as (
 
 new_player_data as (
     SELECT
-        nextval(pg_get_serial_sequence('{{ this }}', 'player_key')) as player_key
+        cast(nextval(pg_get_serial_sequence('{{ this }}', 'player_key')) as int) as player_key
         ,player_id
         ,season
         ,first_name
@@ -88,7 +88,7 @@ new_player_data as (
 
 existing_player_new_data as (
     SELECT
-        nextval(pg_get_serial_sequence('{{ this }}', 'player_key')) as player_key
+        cast(nextval(pg_get_serial_sequence('{{ this }}', 'player_key')) as int) as player_key
         ,source_data.player_id
         ,source_data.season
         ,source_data.first_name
