@@ -78,7 +78,7 @@ class stg_players(Base):
     season = Column(String(7), nullable=False)
     first_name = Column(String(100), nullable=False)
     last_name = Column(String(100), nullable=False)
-    web_name = Column(String(50), nullable=False)
+    web_name = Column(String(100), nullable=False)
     position = Column(String(10), nullable=False)
     price = Column(Integer, nullable=False)
     team_id = Column(Integer, nullable=False)

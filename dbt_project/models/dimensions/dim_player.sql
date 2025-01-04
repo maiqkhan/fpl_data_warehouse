@@ -3,7 +3,7 @@
         unique_key=['player_id', 'season', 'effective_dt'],
         incremental_strategy='merge',
         merge_update_columns = ['expiry_dt', 'current_ind'],
-        on_schema_change='ignore'
+        on_schema_change='fail'
     ) }}
 
 WITH source_data as (
