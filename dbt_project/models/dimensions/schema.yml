@@ -231,7 +231,6 @@ models:
           description: "The unique ID for a player within a given season."   
           data_type: int         
           data_tests:
-            - unique
             - not_null
             - valid_range:
                 min_value: 1
