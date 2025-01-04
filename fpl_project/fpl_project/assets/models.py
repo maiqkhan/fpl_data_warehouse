@@ -36,7 +36,7 @@ class stg_teams(Base):
     team_key = Column(Integer, primary_key=True)
     team_id = Column(Integer, nullable=False)
     season = Column(String(7), nullable=False)
-    name = Column(String, nullable=False)
+    name = Column(String(50), nullable=False)
     short_name = Column(String(3), nullable=False)
     strength = Column(Integer, nullable=False)
     strength_overall_home = Column(Integer, nullable=False)
