@@ -293,6 +293,8 @@ models:
                 values: [0, 1]
   - name: fact_match_stats
     config:
+      contract:
+        enforced: true
       meta:
         dagster:
           group: FACTS
