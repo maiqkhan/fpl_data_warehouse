@@ -13,6 +13,7 @@ from fpl_project.fpl_project.assets.models import (
     stg_teams,
     stg_fixtures,
     stg_players,
+    stg_matches,
 )
 from fpl_project.fpl_project.assets.dates import generate_date_fields_array
 from typing import Dict, List
@@ -182,6 +183,54 @@ def staging_player_table(
         Base.metadata.create_all(engine, tables=[table_inst])
 
     players.rename(columns={"team": "team_id"}).to_sql(
+        name=table_name,
+        schema=schema_name,
+        con=engine,
+        if_exists="append",
+        index=False,
+        chunksize=380,
+    )
+
+
+@asset(
+    group_name="STAGING",
+    description="Staging table for dim_date model.",
+    kinds={"python", "postgres", "table"},
+)
+def staging_matches_table(
+    context: AssetExecutionContext,
+    matches_df: pd.DataFrame,
+    fpl_server: PostgresResource,
+) -> None:
+
+    engine = fpl_server.connect_to_engine()
+
+    table_name = stg_matches.__tablename__
+    schema_name = stg_matches.__table_args__["schema"]
+    table_inst = stg_matches.__table__
+
+    if inspect(engine).has_table(table_name, schema=schema_name):
+        with fpl_server.get_session() as session:
+            truncate_table(
+                session=session,
+                table_name=table_name,
+                schema_name=schema_name,
+            )
+
+    else:
+        Base.metadata.create_all(engine, tables=[table_inst])
+
+    drop_cols = [
+        "was_home",
+        "kickoff_time",
+        "team_id",
+        "first_name",
+        "last_name",
+        "web_name",
+        "position",
+    ]
+
+    matches_df.drop(drop_cols, axis=1).to_sql(
         name=table_name,
         schema=schema_name,
         con=engine,
