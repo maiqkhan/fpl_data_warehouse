@@ -4,11 +4,12 @@ from dagster import (
     asset_check,
     AssetCheckResult,
     AssetCheckExecutionContext,
+    ConfigurableResource,
 )
 from fpl_project.fpl_project.resources.fpl_api import FplAPI
 from fpl_project.fpl_project.resources.postgres import PostgresResource
 from fpl_project.fpl_project.assets.staging import table_exists
-from fpl_project.fpl_project.assets.models import dim_fixture
+from fpl_project.fpl_project.assets.models import dim_fixture, dim_player
 from typing import Dict, List
 import pandas as pd
 from sqlalchemy import inspect, func, select, orm, text
@@ -24,6 +25,21 @@ def get_recent_completed_matches(
         )
     else:
         return np.setdiff1d(api_fixtures, db_fixtures)
+
+
+def get_player_match_history(
+    player_id_lst: List[int], api_resource: FplAPI, context: AssetExecutionContext
+) -> pd.DataFrame:
+    player_match_lst = []
+    for player in player_id_lst:
+        context.log.info(f"Getting historical data for: {player}")
+        payload = api_resource.get_request(endpoint=f"element-summary/{player}/").json()
+
+        player_matches_df = pd.DataFrame.from_records(payload["history"])
+
+        player_match_lst.append(player_matches_df)
+
+    return pd.concat(player_match_lst)
 
 
 @asset(
@@ -58,7 +74,30 @@ def incremental_finished_matches(
             api_fixtures_finished["fixture_key"].values, db_fixtures_finished
         )
 
-        raw_match_stats_history = pd.DataFrame()
+        recent_completed_fixtures_df = api_fixtures_finished.query(
+            "fixture_key in @recent_completed_fixtures"
+        )
+
+        fixtures_recently_played = recent_completed_fixtures_df[
+            "fixture_id"
+        ].values.tolist()
+
+        teams_recently_played = (
+            recent_completed_fixtures_df["team_h"].values.tolist()
+            + recent_completed_fixtures_df["team_a"].values.tolist()
+        )
+
+        player_lst = players.query("team in @teams_recently_played")[
+            "player_id"
+        ].values.tolist()
+
+        context.log.info(recent_completed_fixtures_df)
+        context.log.info(teams_recently_played)
+        context.log.info(player_lst)
+
+        raw_match_stats_history = get_player_match_history(
+            player_lst, fpl_api, context
+        ).query("fixture in @fixtures_recently_played")
 
     else:
         context.log.info("The table does not exist")
@@ -144,6 +183,6 @@ def matches_df(
     ]:
         match_stats[col] = match_stats[col].apply(float)
 
-    context.log.info(match_stats.columns)
+    context.log.info(match_stats.fixture_id.unique())
 
     return match_stats
