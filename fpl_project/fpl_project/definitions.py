@@ -56,6 +56,10 @@ refresh_dimensions = define_asset_job(
     name="REFRESH_DIMENSIONS", selection=["*dim_player", "*dim_fixture", "*dim_date"]
 )
 
+refresh_match_stats = define_asset_job(
+    name="REFRESH_MATCH_STATS", selection=["*fact_match_stats"]
+)
+
 
 @schedule(job=all_assets_job, cron_schedule="*/5 * * * *")
 def test_schedule():
@@ -73,6 +77,7 @@ defs = Definitions(
         get_raw_data,
         table_source_data,
         refresh_dimensions,
+        refresh_match_stats,
     ],
     schedules=[test_schedule],
     resources={
