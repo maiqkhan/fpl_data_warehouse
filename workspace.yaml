@@ -1,0 +1,4 @@
+load_from:
+  - python_module: 
+        module_name: fpl_project.definitions
+        working_directory: fpl_project
