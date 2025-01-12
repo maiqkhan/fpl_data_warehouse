@@ -28,8 +28,8 @@ from
 
 staging
 
-{% if is_incremental() %}
+{# {% if is_incremental() %}
 
 where team_key > (select coalesce(max(team_key),1900011) from {{ this }} )
 
-{% endif %}
+{% endif %} #}
