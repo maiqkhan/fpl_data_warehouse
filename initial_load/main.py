@@ -1,10 +1,10 @@
 from sqlalchemy.schema import CreateSchema
 from sqlalchemy.orm import sessionmaker
-from database import get_conn, engine
-from api_handler import requestHandler
-from utils import dict_to_model_inst
-from load_tables import table_ingestor
-import models
+from .database import get_conn, engine
+from .api_handler import requestHandler
+from .utils import dict_to_model_inst
+from .load_tables import table_ingestor
+from . import models
 import yaml
 import os
 
