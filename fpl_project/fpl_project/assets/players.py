@@ -51,19 +51,21 @@ def players(raw_player_df: pd.DataFrame, epl_season: str) -> pd.DataFrame:
 
     player_dict = {1: "Goalkeeper", 2: "Defender", 3: "Midfielder", 4: "Forward"}
 
-    raw_player_df["position"] = raw_player_df["element_type"].apply(player_dict.get)
+    player_df = raw_player_df.copy()
 
-    raw_player_df = raw_player_df.drop("element_type", axis=1)
+    player_df["position"] = player_df["element_type"].apply(player_dict.get)
 
-    raw_player_df["season"] = epl_season
+    player_df = player_df.drop("element_type", axis=1)
 
-    raw_player_df = raw_player_df.rename(
+    player_df["season"] = epl_season
+
+    player_df = player_df.rename(
         columns={"id": "player_id", "second_name": "last_name", "now_cost": "price"}
     )
 
-    raw_player_df["extract_dt"] = dt.today().date()
+    player_df["extract_dt"] = dt.today().date()
 
-    return raw_player_df
+    return player_df
 
 
 @asset_check(
