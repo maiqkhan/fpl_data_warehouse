@@ -5,14 +5,13 @@ from dagster import (
     EnvVar,
     define_asset_job,
     AssetSelection,
-    ScheduleDefinition,
     schedule,
     RunRequest,
 )
 
 from dagster_dbt import DbtCliResource
 
-from fpl_project.fpl_project.assets import (
+from .assets import (
     dates,
     players,
     raw,
@@ -22,10 +21,9 @@ from fpl_project.fpl_project.assets import (
     staging,
     dbt_assets,
 )
-from fpl_project.fpl_project.resources import (
+from .resources import (
     postgres,
     fpl_api,
-    dbt_resource,
 )  # noqa: TID252
 from pathlib import Path
 

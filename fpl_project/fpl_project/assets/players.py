@@ -6,8 +6,8 @@ from dagster import (
     AssetCheckResult,
 )
 import pandas as pd
-from fpl_project.fpl_project.resources.postgres import PostgresResource
-from fpl_project.fpl_project.assets.models import dim_player, Base
+from ..resources.postgres import PostgresResource
+from .models import dim_player, Base
 from typing import Dict, List
 from datetime import datetime as dt, timedelta as tmdelta
 

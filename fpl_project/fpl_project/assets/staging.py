@@ -1,13 +1,9 @@
 from dagster import (
     asset,
     AssetExecutionContext,
-    asset_check,
-    AssetCheckResult,
-    AssetCheckExecutionContext,
 )
-from fpl_project.fpl_project.resources.fpl_api import FplAPI
-from fpl_project.fpl_project.resources.postgres import PostgresResource
-from fpl_project.fpl_project.assets.models import (
+from ..resources.postgres import PostgresResource
+from .models import (
     Base,
     fpl_dates,
     stg_teams,
@@ -15,11 +11,9 @@ from fpl_project.fpl_project.assets.models import (
     stg_players,
     stg_matches,
 )
-from fpl_project.fpl_project.assets.dates import generate_date_fields_array
-from typing import Dict, List
+from .dates import generate_date_fields_array
 import pandas as pd
-from datetime import date, datetime
-from dateutil.relativedelta import relativedelta
+from datetime import datetime
 from sqlalchemy import inspect, func, select, orm, text
 
 

@@ -1,18 +1,14 @@
 from dagster import (
     asset,
     AssetExecutionContext,
-    asset_check,
-    AssetCheckResult,
-    AssetCheckExecutionContext,
-    ConfigurableResource,
 )
-from fpl_project.fpl_project.resources.fpl_api import FplAPI
-from fpl_project.fpl_project.resources.postgres import PostgresResource
-from fpl_project.fpl_project.assets.staging import table_exists
-from fpl_project.fpl_project.assets.models import dim_fixture, dim_player
-from typing import Dict, List
+from ..resources.fpl_api import FplAPI
+from ..resources.postgres import PostgresResource
+from .staging import table_exists
+from .models import dim_fixture
+from typing import List
 import pandas as pd
-from sqlalchemy import inspect, func, select, orm, text
+from sqlalchemy import select
 import numpy as np
 
 

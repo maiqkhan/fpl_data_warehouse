@@ -5,7 +5,7 @@ from dagster import (
     AssetCheckResult,
     AssetCheckExecutionContext,
 )
-from fpl_project.fpl_project.resources.fpl_api import FplAPI
+from ..resources.fpl_api import FplAPI
 from typing import Dict, List
 
 

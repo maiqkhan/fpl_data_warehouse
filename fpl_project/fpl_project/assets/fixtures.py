@@ -1,5 +1,4 @@
 from dagster import asset, AssetExecutionContext
-from fpl_project.fpl_project.resources.fpl_api import FplAPI
 from typing import Dict, List, Optional
 import pandas as pd
 from datetime import datetime as dt, date
