@@ -1,12 +1,13 @@
+from pathlib import Path
 from dagster import (
     Definitions,
     load_assets_from_modules,
     load_asset_checks_from_modules,
     EnvVar,
     define_asset_job,
-    AssetSelection,
     schedule,
     RunRequest,
+    DefaultScheduleStatus,
 )
 
 from dagster_dbt import DbtCliResource
@@ -25,42 +26,36 @@ from .resources import (
     postgres,
     fpl_api,
 )  # noqa: TID252
-from pathlib import Path
 
 all_assets = load_assets_from_modules(
     [players, raw, fixtures, teams, matches, dates, staging, dbt_assets]
 )
-all_asset_checks = load_asset_checks_from_modules([raw, players])
-all_assets_job = define_asset_job(
-    name="initial_job", selection=["*fixtures", "*players", "*teams"]
-)
-
-
-get_raw_data = define_asset_job(
-    name="GET_RAW_API_DATA", selection=AssetSelection.groups("RAW_DATA")
-)
-
-table_source_data = define_asset_job(
-    name="BUILD_TABLE_SOURCE_DATA",
-    selection=AssetSelection.groups("FIXTURES")
-    | AssetSelection.groups("TEAMS")
-    | AssetSelection.groups("PLAYER")
-    | AssetSelection.groups("DATE"),
-)
-
-initial_load_job = define_asset_job(name="initial_load", selection=["*matches_df"])
-
-refresh_dimensions = define_asset_job(
-    name="REFRESH_DIMENSIONS", selection=["*dim_player", "*dim_fixture", "*dim_date"]
+all_asset_checks = load_asset_checks_from_modules(
+    [
+        players,
+        raw,
+        fixtures,
+        teams,
+        matches,
+        dates,
+        staging,
+    ]
 )
 
 refresh_match_stats = define_asset_job(
     name="REFRESH_MATCH_STATS", selection=["*fact_match_stats"]
 )
 
+match_stats_sched_hour = EnvVar("MATCH_STATS_SCHED_HOUR").get_value()
+match_stats_sched_min = EnvVar("MATCH_STATS_SCHED_MINUTE").get_value()
 
-@schedule(job=all_assets_job, cron_schedule="*/5 * * * *")
-def test_schedule():
+
+@schedule(
+    job=refresh_match_stats,
+    cron_schedule=f"{match_stats_sched_min} {match_stats_sched_hour} * * *",
+    default_status=DefaultScheduleStatus.RUNNING,
+)
+def daily_fpl_data_refresh():
     return RunRequest(
         run_key=None,
     )
@@ -69,15 +64,8 @@ def test_schedule():
 defs = Definitions(
     assets=all_assets,
     asset_checks=all_asset_checks,
-    jobs=[
-        all_assets_job,
-        initial_load_job,
-        get_raw_data,
-        table_source_data,
-        refresh_dimensions,
-        refresh_match_stats,
-    ],
-    schedules=[test_schedule],
+    jobs=[refresh_match_stats],
+    schedules=[daily_fpl_data_refresh],
     resources={
         "fpl_server": postgres.PostgresResource(
             credentials=postgres.CredentialsResource(
