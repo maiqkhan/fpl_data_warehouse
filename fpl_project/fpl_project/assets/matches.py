@@ -31,15 +31,28 @@ def get_player_match_history(
     player_id_lst: List[int], api_resource: FplAPI, context: AssetExecutionContext
 ) -> pd.DataFrame:
     player_match_lst = []
-    for player in player_id_lst:
-        context.log.info(f"Getting historical data for: {player}")
-        payload = api_resource.get_request(endpoint=f"element-summary/{player}/").json()
 
-        player_matches_df = pd.DataFrame.from_records(payload["history"])
+    if not player_id_lst:
+        payload = api_resource.get_request(endpoint=f"element-summary/{1}/").json()
+        match_lst_cols = payload["history"][0].keys()
 
-        player_match_lst.append(player_matches_df)
+        context.log.info(
+            f"Creating empty dataframe with following columns: {match_lst_cols}"
+        )
 
-    return pd.concat(player_match_lst)
+        return pd.DataFrame([], columns=match_lst_cols)
+    else:
+        for player in player_id_lst:
+            context.log.info(f"Getting historical data for: {player}")
+            payload = api_resource.get_request(
+                endpoint=f"element-summary/{player}/"
+            ).json()
+
+            player_matches_df = pd.DataFrame.from_records(payload["history"])
+
+            player_match_lst.append(player_matches_df)
+
+        return pd.concat(player_match_lst)
 
 
 @asset(
@@ -93,7 +106,6 @@ def incremental_finished_matches(
 
         context.log.info(recent_completed_fixtures_df)
         context.log.info(teams_recently_played)
-        context.log.info(player_lst)
 
         raw_match_stats_history = get_player_match_history(
             player_lst, fpl_api, context
@@ -184,5 +196,6 @@ def matches_df(
         match_stats[col] = match_stats[col].apply(float)
 
     context.log.info(match_stats.fixture_id.unique())
+    context.log.info(match_stats)
 
     return match_stats
