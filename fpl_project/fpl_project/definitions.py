@@ -42,6 +42,15 @@ all_asset_checks = load_asset_checks_from_modules(
     ]
 )
 
+create_dim_team_table = define_asset_job(
+    name="INITIAL_DIM_TEAM_LOAD", selection=["*dim_team"]
+)
+
+create_initial_dim_player_table = define_asset_job(
+    name="INITIAL_DIM_PLAYER_LOAD", selection=["*dim_player"]
+)
+
+
 refresh_match_stats = define_asset_job(
     name="REFRESH_MATCH_STATS", selection=["*fact_match_stats"]
 )
@@ -64,7 +73,7 @@ def daily_fpl_data_refresh():
 defs = Definitions(
     assets=all_assets,
     asset_checks=all_asset_checks,
-    jobs=[refresh_match_stats],
+    jobs=[refresh_match_stats, create_dim_team_table, create_initial_dim_player_table],
     schedules=[daily_fpl_data_refresh],
     resources={
         "fpl_server": postgres.PostgresResource(
