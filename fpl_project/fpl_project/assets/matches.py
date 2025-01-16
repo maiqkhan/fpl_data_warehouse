@@ -10,6 +10,7 @@ from typing import List
 import pandas as pd
 from sqlalchemy import select
 import numpy as np
+import time
 
 
 def get_recent_completed_matches(
@@ -47,6 +48,7 @@ def get_player_match_history(
             player_matches_df = pd.DataFrame.from_records(payload["history"])
 
             player_match_lst.append(player_matches_df)
+            time.sleep(3)
 
         return pd.concat(player_match_lst)
 
