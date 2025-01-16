@@ -47,7 +47,7 @@ create_dim_team_table = define_asset_job(
 )
 
 create_initial_dim_player_table = define_asset_job(
-    name="INITIAL_DIM_PLAYER_LOAD", selection=["*dim_player"]
+    name="INITIAL_DIM_PLAYER_LOAD", selection=["*initial_dim_player"]
 )
 
 
