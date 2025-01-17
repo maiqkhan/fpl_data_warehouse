@@ -27,7 +27,7 @@ def generate_expiry_date(
 )
 def raw_player_df(raw_players: List[Dict]) -> pd.DataFrame:
 
-    raw_df = pd.DataFrame.from_records(raw_players)
+    raw_df = pd.DataFrame.from_records(raw_players).query("can_select == True")
 
     keep_cols = [
         "id",
