@@ -1,0 +1,30 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Docker
+docker-compose.yml
+Dockerfile
+.docker
+.dockerignore
+
+# Byte-compiled / optimized / DLL files
+**/__pycache__/
+**/.pytest_cache/
+**/*.py[cod]
+
+# Distribution / packaging
+.Python
+env/
+
+# Dagster
+dagster_home/
+
+# VS Code
+.vscode/
+
+# Virtual environment
+.env
+.venv/
+venv/

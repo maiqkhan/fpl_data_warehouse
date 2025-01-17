@@ -1,0 +1,112 @@
+
+services:
+  fpl_database:
+    image: postgres:16
+    container_name: fpl_db    
+    env_file:
+      - path: ./fpl_db.env
+        required: true
+    ports:
+      - "5433:5432"
+    networks:
+      - fpl_dagster_network
+    volumes:
+      - "./fpl_postgres_data:/var/lib/postgresql/data:rw"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dagster_user -d dagster_db"]
+      interval: 10s
+      timeout: 8s
+      retries: 5
+      start_period: 30s
+  
+  dagster_postgres:
+    image: postgres:16
+    container_name: dagster_postgresql
+    environment:
+      POSTGRES_USER: "postgres_user"
+      POSTGRES_PASSWORD: "postgres_password"
+      POSTGRES_DB: "postgres_db"
+    networks:
+      - fpl_dagster_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dagster_user -d dagster_db"]
+      interval: 10s
+      timeout: 8s
+      retries: 5
+      start_period: 30s
+
+  dagster_user_code:
+    build:
+      context: .
+      dockerfile: ./Dockerfile_user_code
+    container_name: docker_user_code
+    restart: always
+    environment:
+      DAGSTER_POSTGRES_USER: "postgres_user"
+      DAGSTER_POSTGRES_PASSWORD: "postgres_password"
+      DAGSTER_POSTGRES_DB: "postgres_db"
+      DAGSTER_CURRENT_IMAGE: "docker_example_user_code_image"
+    networks:
+      - fpl_dagster_network
+  
+  
+  dagster_webserver:
+    build:
+      context: .
+      dockerfile: ./Dockerfile_dagster
+    container_name: dagster_webserver
+    entrypoint:
+      - dagster-webserver
+      - -h
+      - "0.0.0.0"
+      - -p
+      - "3000"
+      - -w
+      - workspace.yaml
+    expose:
+      - "3000"
+    ports:
+      - 3000:3000    
+    networks:
+      - fpl_dagster_network
+    environment:
+      DAGSTER_POSTGRES_USER: "postgres_user"
+      DAGSTER_POSTGRES_PASSWORD: "postgres_password"
+      DAGSTER_POSTGRES_DB: "postgres_db"
+    volumes: 
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp/io_manager_storage:/tmp/io_manager_storage
+    depends_on:
+      dagster_postgres:
+        condition: service_healthy
+      dagster_user_code:
+        condition: service_started
+  
+  dagster_daemon:
+    build:
+      context: .
+      dockerfile: ./Dockerfile_dagster
+    container_name: dagster_daemon
+    entrypoint:
+      - dagster-daemon
+      - run
+    restart: on-failure
+    environment:
+      DAGSTER_POSTGRES_USER: "postgres_user"
+      DAGSTER_POSTGRES_PASSWORD: "postgres_password"
+      DAGSTER_POSTGRES_DB: "postgres_db"
+    volumes: 
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp/io_manager_storage:/tmp/io_manager_storage
+    networks:
+      - fpl_dagster_network
+    depends_on:
+      dagster_postgres:
+        condition: service_healthy
+      dagster_user_code:
+        condition: service_started
+        
+networks:
+  fpl_dagster_network:
+    driver: bridge
+    name: fpl_dagster_network
