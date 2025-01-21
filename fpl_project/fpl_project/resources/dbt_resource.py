@@ -3,7 +3,7 @@ from pathlib import Path
 
 
 dbt_project = DbtProject(
-    project_dir=Path(__file__).joinpath("..", "..", "..", "..", "dbt_project").resolve()
+    project_dir=Path("/opt/dagster/app/dbt_project")
 )
 
 dbt_project.prepare_if_dev()
