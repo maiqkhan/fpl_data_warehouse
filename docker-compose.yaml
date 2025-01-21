@@ -13,12 +13,11 @@ services:
     volumes:
       - "./fpl_postgres_data:/var/lib/postgresql/data:rw"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U dagster_user -d dagster_db"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
       interval: 10s
       timeout: 8s
       retries: 5
-      start_period: 30s
-  
+      start_period: 30s  
   dagster_postgres:
     image: postgres:16
     container_name: dagster_postgresql
@@ -29,27 +28,43 @@ services:
     networks:
       - fpl_dagster_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U dagster_user -d dagster_db"]
+      test: ["CMD-SHELL", "pg_isready -U postgres_user -d postgres_db"]
       interval: 10s
       timeout: 8s
       retries: 5
       start_period: 30s
-
   dagster_user_code:
     build:
       context: .
       dockerfile: ./Dockerfile_user_code
-    container_name: docker_user_code
+    container_name: dagster_user_code
+    image: dagster_user_code_image
+    user: root
+    env_file:
+      - path: ./fpl_db.env
+        required: true
     restart: always
+    ports:
+      - 4000:4000 
     environment:
       DAGSTER_POSTGRES_USER: "postgres_user"
       DAGSTER_POSTGRES_PASSWORD: "postgres_password"
       DAGSTER_POSTGRES_DB: "postgres_db"
-      DAGSTER_CURRENT_IMAGE: "docker_example_user_code_image"
+      DAGSTER_CURRENT_IMAGE: "dagster_user_code_image"
     networks:
       - fpl_dagster_network
-  
-  
+    volumes:
+      - ./dbt_project:/opt/dagster/app/dbt_project
+    healthcheck:
+      test: ["CMD", "dagster", "api", "grpc-health-check", "-p", "4000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    
+    depends_on:
+      fpl_database:
+        condition: service_healthy
   dagster_webserver:
     build:
       context: .
@@ -76,12 +91,12 @@ services:
     volumes: 
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp/io_manager_storage:/tmp/io_manager_storage
+      - ./dbt_project:/opt/dagster/app/dbt_project
     depends_on:
       dagster_postgres:
         condition: service_healthy
       dagster_user_code:
-        condition: service_started
-  
+        condition: service_healthy
   dagster_daemon:
     build:
       context: .
@@ -98,13 +113,14 @@ services:
     volumes: 
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp/io_manager_storage:/tmp/io_manager_storage
+      - ./dbt_project:/opt/dagster/app/dbt_project
     networks:
       - fpl_dagster_network
     depends_on:
       dagster_postgres:
         condition: service_healthy
       dagster_user_code:
-        condition: service_started
+        condition: service_healthy
         
 networks:
   fpl_dagster_network:
