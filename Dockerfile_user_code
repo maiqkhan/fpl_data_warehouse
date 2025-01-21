@@ -9,8 +9,8 @@ COPY requirements.txt /opt/dagster/app/
 RUN pip install -r requirements.txt --no-cache-dir
 
 COPY fpl_project /opt/dagster/app/
-COPY dbt_project /opt/dagster/app/
+COPY dbt_project /opt/dagster/app/dbt_project
 
 EXPOSE 4000 
-CMD ["dagster", "api", "grpc", "-h", "0.0.0.0", "-p", "4000", "--module-name", "fpl_project.definitions"]
+CMD ["sh", "-c", "dbt compile --profiles-dir /opt/dagster/app/dbt_project --project-dir /opt/dagster/app/dbt_project && dagster api grpc -h 0.0.0.0 -p 4000 --module-name fpl_project.definitions"]
 
