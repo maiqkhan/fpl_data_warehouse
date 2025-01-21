@@ -55,13 +55,9 @@ refresh_match_stats = define_asset_job(
     name="REFRESH_MATCH_STATS", selection=["*fact_match_stats"]
 )
 
-match_stats_sched_hour = EnvVar("MATCH_STATS_SCHED_HOUR").get_value()
-match_stats_sched_min = EnvVar("MATCH_STATS_SCHED_MINUTE").get_value()
-
-
 @schedule(
     job=refresh_match_stats,
-    cron_schedule=f"{match_stats_sched_min} {match_stats_sched_hour} * * *",
+    cron_schedule=f"30 0 * * *",
     default_status=DefaultScheduleStatus.RUNNING,
 )
 def daily_fpl_data_refresh():
@@ -78,18 +74,16 @@ defs = Definitions(
     resources={
         "fpl_server": postgres.PostgresResource(
             credentials=postgres.CredentialsResource(
-                username=EnvVar("DB_USERNAME"),
-                password=EnvVar("DB_PASSWORD"),
-                server_port=EnvVar("SERVER_PORT"),
-                server=EnvVar("SERVER"),
-                database=EnvVar("DATABASE"),
+                username=EnvVar("POSTGRES_USER"),
+                password=EnvVar("POSTGRES_PASSWORD"),
+                server_port=EnvVar("POSTGRES_PORT"),
+                server=EnvVar("fpl_db"),
+                database=EnvVar("POSTGRES_DB"),
             )
         ),
         "fpl_api": fpl_api.FplAPI(base_url="https://fantasy.premierleague.com/api/"),
         "dbt": DbtCliResource(
-            project_dir=Path(__file__)
-            .joinpath("..", "..", "..", "dbt_project")
-            .resolve()
+            project_dir="/opt/dagster/app/dbt_project"
         ),
     },
 )
