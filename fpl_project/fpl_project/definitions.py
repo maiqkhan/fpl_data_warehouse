@@ -77,7 +77,7 @@ defs = Definitions(
                 username=EnvVar("POSTGRES_USER"),
                 password=EnvVar("POSTGRES_PASSWORD"),
                 server_port=EnvVar("POSTGRES_PORT"),
-                server=EnvVar("fpl_db"),
+                server="fpl_db",
                 database=EnvVar("POSTGRES_DB"),
             )
         ),
