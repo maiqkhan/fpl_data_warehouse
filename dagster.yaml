@@ -21,6 +21,10 @@ run_launcher:
       - DAGSTER_POSTGRES_USER
       - DAGSTER_POSTGRES_PASSWORD
       - DAGSTER_POSTGRES_DB
+      - POSTGRES_DB
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_PORT
     network: fpl_dagster_network
     container_kwargs:
       volumes: # Make docker client accessible to any launched containers as well
