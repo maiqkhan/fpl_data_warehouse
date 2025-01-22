@@ -3,21 +3,21 @@ services:
   fpl_database:
     image: postgres:16
     container_name: fpl_db    
-    env_file:
-      - path: ./fpl_db.env
-        required: true
+    env_file: "fpl_db.env"
     ports:
       - "5433:5432"
     networks:
       - fpl_dagster_network
     volumes:
       - "./fpl_postgres_data:/var/lib/postgresql/data:rw"
+      - "./health_check.sh:/usr/local/bin/health_check.sh"
+      - "./init.sql:/docker-entrypoint-initdb.d/init.sql"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
-      interval: 10s
+      test: ["CMD-SHELL", "/usr/local/bin/health_check.sh"]
+      interval: 30s
       timeout: 8s
       retries: 5
-      start_period: 30s  
+      start_period: 10s  
   dagster_postgres:
     image: postgres:16
     container_name: dagster_postgresql
@@ -27,12 +27,14 @@ services:
       POSTGRES_DB: "postgres_db"
     networks:
       - fpl_dagster_network
+    volumes:
+      - "./health_check.sh:/usr/local/bin/health_check.sh"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres_user -d postgres_db"]
-      interval: 10s
+      test: ["CMD-SHELL", "/usr/local/bin/health_check.sh"]
+      interval: 30s
       timeout: 8s
       retries: 5
-      start_period: 30s
+      start_period: 10s
   dagster_user_code:
     build:
       context: .
@@ -40,9 +42,7 @@ services:
     container_name: dagster_user_code
     image: dagster_user_code_image
     user: root
-    env_file:
-      - path: ./fpl_db.env
-        required: true
+    env_file: "fpl_db.env"
     restart: always
     ports:
       - 4000:4000 
@@ -102,6 +102,7 @@ services:
       context: .
       dockerfile: ./Dockerfile_dagster
     container_name: dagster_daemon
+    env_file: "fpl_db.env"
     entrypoint:
       - dagster-daemon
       - run
