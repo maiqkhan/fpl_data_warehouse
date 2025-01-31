@@ -104,8 +104,14 @@ services:
     container_name: dagster_daemon
     env_file: "fpl_db.env"
     entrypoint:
-      - dagster-daemon
-      - run
+      - /bin/bash
+      - -c
+      - |
+        dagster-daemon run & 
+        sleep 10
+        dagster job launch --job INITIAL_DIM_TEAM_LOAD
+        dagster job launch --job INITIAL_DIM_PLAYER_LOAD
+        tail -f /dev/null
     restart: on-failure
     environment:
       DAGSTER_POSTGRES_USER: "postgres_user"
@@ -115,6 +121,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp/io_manager_storage:/tmp/io_manager_storage
       - ./dbt_project:/opt/dagster/app/dbt_project
+      - ./run_initial_load.sh:/opt/dagster/dagster_home/run_initial_load.sh
     networks:
       - fpl_dagster_network
     depends_on:
