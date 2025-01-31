@@ -49,7 +49,7 @@ def raw_player_df(raw_players: List[Dict]) -> pd.DataFrame:
 )
 def players(raw_player_df: pd.DataFrame, epl_season: str) -> pd.DataFrame:
 
-    player_dict = {1: "Goalkeeper", 2: "Defender", 3: "Midfielder", 4: "Forward"}
+    player_dict = {1: "Goalkeeper", 2: "Defender", 3: "Midfielder", 4: "Forward", 5: "Manager"}
 
     player_df = raw_player_df.copy()
 

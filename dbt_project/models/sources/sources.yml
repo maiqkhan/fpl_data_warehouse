@@ -222,7 +222,7 @@ sources:
             description: "The position of a given player."          
             data_test:
               - accepted_values:
-                  values: ['Goalkeeper', 'Defender', 'Midfielder', 'Forward']
+                  values: ['Goalkeeper', 'Defender', 'Midfielder', 'Forward', 'Manager']
           - name: price  
             description: "The current price of a given player."          
             data_test:
