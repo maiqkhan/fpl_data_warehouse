@@ -466,5 +466,39 @@ models:
           data_type: int
           data_tests:
             - not_null
-
+        - name: mng_win  
+          description: "The team win points a manager has scored within a given fixture."  
+          data_type: int        
+          data_test:
+            - not_null
+        - name: mng_draw  
+          description: "The team draw points a manager has scored within a given fixture." 
+          data_type: int         
+          data_test:
+            - not_null
+        - name: mng_loss  
+          description: "The team loss points a manager has scored within a given fixture."  
+          data_type: int        
+          data_test:
+            - not_null
+        - name: mng_underdog_win  
+          description: "The underdog team win indicator a manager has registered within a given fixture."   
+          data_type: int       
+          data_test:
+            - not_null
+        - name: mng_underdog_draw  
+          description: "The underdog team draw indicator a manager has registered within a given fixture."  
+          data_type: int        
+          data_test:
+            - not_null
+        - name: mng_clean_sheets  
+          description: "The clean sheet points a manager has registered within a given fixture."      
+          data_type: int    
+          data_test:
+            - not_null
+        - name: mng_goals_scored  
+          description: "The goals scoared by a manager's team within a given fixture. Players will only have 0 as a value for this feature."     
+          data_type: int     
+          data_test:
+            - not_null
       

@@ -120,7 +120,14 @@ class stg_matches(Base):
     extract_dt = Column(Date, nullable=False)
     goals_scored = Column(Integer, nullable=False)
     threat = Column(Float, nullable=False)
-    creativity = Column(Float, nullable=False)
+    creativity = Column(Integer, nullable=False)
+    mng_win = Column(Integer, nullable=False)
+    mng_draw = Column(Integer, nullable=False)
+    mng_loss = Column(Integer, nullable=False)
+    mng_underdog_win = Column(Integer, nullable=False)
+    mng_underdog_draw = Column(Integer, nullable=False)
+    mng_clean_sheets = Column(Integer, nullable=False)
+    mng_goals_scored = Column(Integer, nullable=False)
 
 
 class dim_date(Base):
@@ -237,3 +244,10 @@ class fact_match_stats(Base):
     creativity = Column(Float, nullable=False)
     threat = Column(Float, nullable=False)
     ict_index = Column(Float, nullable=False)
+    mng_win = Column(Integer, nullable=False)
+    mng_draw = Column(Integer, nullable=False)
+    mng_loss = Column(Integer, nullable=False)
+    mng_underdog_win = Column(Integer, nullable=False)
+    mng_underdog_draw = Column(Integer, nullable=False)
+    mng_clean_sheets = Column(Integer, nullable=False)
+    mng_goals_scored = Column(Integer, nullable=False)
