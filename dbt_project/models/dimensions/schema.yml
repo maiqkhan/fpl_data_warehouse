@@ -12,18 +12,19 @@ models:
     columns:
       - name: date_key
         description: "The primary key for the dimension table. A date represented in integer format."
-        data_type: int  
+        data_type: int
         constraints:
           - type: primary_key
+          - type: unique
         data_tests:
           - unique
           - not_null
       - name: date_id
         description: "A date represented in ISO format."
         data_type: date  
-        data_tests:
-          - unique
-          - not_null
+        constraints:
+          - type: unique
+          - type: not_null
       - name: year
         description: "The year of the date_id"
         data_type: int  
@@ -74,7 +75,7 @@ models:
         description: "The primary key for the dimension table. A key represents the season followed with team id." 
         data_type: int  
         constraints:
-          - type: primary_key       
+          - type: primary_key
         data_tests:
           - unique
           - not_null
