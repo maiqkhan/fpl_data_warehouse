@@ -59,6 +59,7 @@ refresh_match_stats = define_asset_job(
     job=refresh_match_stats,
     cron_schedule=f"30 0 * * *",
     default_status=DefaultScheduleStatus.RUNNING,
+    execution_timezone='Canada/Eastern'
 )
 def daily_fpl_data_refresh():
     return RunRequest(
