@@ -4,7 +4,8 @@
         unique_key=['fixture_key'],
         incremental_strategy='merge',
         merge_update_columns = ['gameweek', 'finished_ind', 'kickoff_time', 'fixture_type'],
-        on_schema_change='fail'
+        on_schema_change='fail',
+        post_hook="ALTER TABLE {{ this }} ADD CONSTRAINT unique_season_fixture UNIQUE (fixture_id, season);"
     ) }}
 
 with staging as (

@@ -3,7 +3,8 @@
         unique_key=['player_id', 'season', 'effective_dt'],
         incremental_strategy='merge',
         merge_update_columns = ['expiry_dt', 'current_ind'],
-        on_schema_change='fail'
+        on_schema_change='fail',
+        post_hook="ALTER TABLE {{ this }} ADD CONSTRAINT unique_season_player UNIQUE (player_id, season, effective_dt, expiry_dt);"
     ) }}
 
 WITH source_data as (
