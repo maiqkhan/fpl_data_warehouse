@@ -9,7 +9,7 @@ services:
     networks:
       - fpl_dagster_network
     volumes:
-      - "./fpl_postgres_data:/var/lib/postgresql/data:rw"
+      - "./fpl_postgres_data:/var/lib/postgresql/data:rwx"
       - "./health_check.sh:/usr/local/bin/health_check.sh"
       - "./init.sql:/docker-entrypoint-initdb.d/init.sql"
     healthcheck:
