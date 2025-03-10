@@ -38,6 +38,13 @@ d_date.date_key as extract_dt_key
 ,goals_scored
 ,threat
 ,creativity
+,mng_win
+,mng_draw
+,mng_loss
+,mng_underdog_win
+,mng_underdog_draw
+,mng_clean_sheets
+,mng_goals_scored
 FROM {{ source('stg', 'matches')}} as source 
 LEFT JOIN {{ ref('dim_date')}} as d_date on source.extract_dt = d_date.date_id
 LEFT JOIN {{ ref('dim_fixture')}} as d_fixture on source.fixture_id = d_fixture.fixture_id 
@@ -74,11 +81,18 @@ extract_dt_key
 ,red_cards
 ,influence
 ,threat
-,creativity
+,CAST(creativity AS FLOAT) as creativity
 ,ict_index
 ,transfers_in
 ,transfers_out
 ,transfers_balance
+,mng_win
+,mng_draw
+,mng_loss
+,mng_underdog_win
+,mng_underdog_draw
+,mng_clean_sheets
+,mng_goals_scored
 
 FROM staging
 
