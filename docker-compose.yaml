@@ -5,13 +5,13 @@ services:
     container_name: fpl_db    
     env_file: "fpl_db.env"
     ports:
-      - "5433:5432"
+      - "5433:5432" #Dagster Postgres Instance will use port 5432
     networks:
       - fpl_dagster_network
     volumes:
       - "./fpl_postgres_data:/var/lib/postgresql/data:rwx"
-      - "./health_check.sh:/usr/local/bin/health_check.sh"
-      - "./init.sql:/docker-entrypoint-initdb.d/init.sql"
+      - "./scripts/health_check.sh:/usr/local/bin/health_check.sh"
+      - "./db/init.sql:/docker-entrypoint-initdb.d/init.sql"
     healthcheck:
       test: ["CMD-SHELL", "/usr/local/bin/health_check.sh"]
       interval: 30s
@@ -28,7 +28,7 @@ services:
     networks:
       - fpl_dagster_network
     volumes:
-      - "./health_check.sh:/usr/local/bin/health_check.sh"
+      - "./scripts/health_check.sh:/usr/local/bin/health_check.sh"
     healthcheck:
       test: ["CMD-SHELL", "/usr/local/bin/health_check.sh"]
       interval: 30s
@@ -121,7 +121,6 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp/io_manager_storage:/tmp/io_manager_storage
       - ./dbt_project:/opt/dagster/app/dbt_project
-      - ./run_initial_load.sh:/opt/dagster/dagster_home/run_initial_load.sh
     networks:
       - fpl_dagster_network
     depends_on:
@@ -129,8 +128,23 @@ services:
         condition: service_healthy
       dagster_user_code:
         condition: service_healthy
-        
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=root
+      - PGADMIN_CONFIG_PROXY_X_HOST_COUNT=1
+      - PGADMIN_CONFIG_PROXY_X_PREFIX_COUNT=1
+    ports:
+      - "8080:80"
+    networks:
+      - fpl_dagster_network     
 networks:
   fpl_dagster_network:
     driver: bridge
     name: fpl_dagster_network
+
+volumes:
+  fpl_postgres_data:
+    external: true
