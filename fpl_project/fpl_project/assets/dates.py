@@ -1,15 +1,14 @@
 from dagster import (
     asset,
-    AssetExecutionContext,
 )
 from typing import Dict, List
 import pandas as pd
 from datetime import date, datetime
-from dateutil.relativedelta import relativedelta
-
 
 def generate_date_fields_array(dt_lst: List[datetime]) -> List[Dict]:
-
+    """Generate an array of dictionaries containing various date-related fields 
+    for each datetime object in the provided list.
+    """
     dt_dict_array = []
 
     month_dict = {
@@ -56,45 +55,15 @@ def generate_date_fields_array(dt_lst: List[datetime]) -> List[Dict]:
 
 @asset(
     group_name="DATE",
-    description="""Date Table ranging 5 years from the first fixture of the season""",
+    description="""Date record for today's extraction of FPL data""",
     kinds={"python", "pandas"},
 )
-def dates_df(context: AssetExecutionContext, first_fixture_date: date) -> pd.DataFrame:
+def dates_df(first_fixture_date: date) -> pd.DataFrame:
+    """Generate a DataFrame containing date-related fields for today's extraction."""
+    today_extract = datetime.today().date()
 
-    month_dict = {
-        1: "January",
-        2: "February",
-        3: "March",
-        4: "April",
-        5: "May",
-        6: "June",
-        7: "July",
-        8: "August",
-        9: "September",
-        10: "October",
-        11: "November",
-        12: "December",
-    }
+    today_dt_dict = generate_date_fields_array([today_extract])
 
-    day_dict = {
-        1: "Monday",
-        2: "Tuesday",
-        3: "Wednesday",
-        4: "Thursday",
-        5: "Friday",
-        6: "Saturday",
-        7: "Sunday",
-    }
-
-    five_years_later = first_fixture_date + relativedelta(years=5)
-
-    five_year_dt_lst = [
-        first_fixture_date + relativedelta(days=x)
-        for x in range((five_years_later - first_fixture_date).days)
-    ]
-
-    five_year_dt_dict = generate_date_fields_array(five_year_dt_lst)
-
-    date_df = pd.DataFrame.from_records(five_year_dt_dict)
+    date_df = pd.DataFrame.from_records(today_dt_dict)
 
     return date_df
