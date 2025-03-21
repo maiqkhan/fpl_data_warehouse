@@ -5,6 +5,7 @@ from datetime import datetime as dt, date
 
 
 def generate_season_str(first_game: dt, last_game: dt) -> str:
+    """Generate a season string based on the first and last game years."""
     if first_game.year == last_game.year:
         return str(first_game.year)
 
@@ -16,6 +17,7 @@ def generate_event_type(
     gameweek: Optional[int],
     kickoff_time: Optional[dt],
 ) -> str:
+    """Determine the event type based on gameweek and kickoff time."""
     if gameweek == 38:
         return "Final Day"
     elif kickoff_time is None:
@@ -57,11 +59,11 @@ def generate_event_type(
 
 @asset(
     group_name="FIXTURES",
-    description="""Game data from FPL api bootstrap-static endpoint""",
+    description="""Pandas Dataframe with fixture data.""",
     kinds={"python", "pandas"},
 )
 def raw_fixture_df(raw_fixtures: List[Dict]) -> pd.DataFrame:
-
+    """Convert raw fixture data into a Pandas DataFrame with parsed datetime fields."""
     df = pd.DataFrame.from_records(raw_fixtures)
 
     df["kickoff_time"] = pd.to_datetime(df["kickoff_time"], format="%Y-%m-%dT%H:%M:%SZ")
@@ -71,11 +73,11 @@ def raw_fixture_df(raw_fixtures: List[Dict]) -> pd.DataFrame:
 
 @asset(
     group_name="FIXTURES",
-    description="""Game data from FPL api bootstrap-static endpoint""",
+    description="""EPL season of the current fixture list.""",
     kinds={"python", "pandas"},
 )
 def epl_season(context: AssetExecutionContext, raw_fixture_df: pd.DataFrame) -> str:
-
+    """Determine the EPL season string based on the first and last scheduled game."""
     scheduled_games = raw_fixture_df.query("kickoff_time.notnull()", engine="python")
 
     first_game = scheduled_games["kickoff_time"].min()
@@ -86,30 +88,15 @@ def epl_season(context: AssetExecutionContext, raw_fixture_df: pd.DataFrame) -> 
 
     return season
 
-
 @asset(
     group_name="FIXTURES",
-    description="""Game data from FPL api bootstrap-static endpoint""",
-    kinds={"python", "pandas"},
-)
-def first_fixture_date(raw_fixture_df: pd.DataFrame) -> date:
-
-    return (
-        raw_fixture_df.query("kickoff_time.notnull()", engine="python")["kickoff_time"]
-        .min()
-        .date()
-    )
-
-
-@asset(
-    group_name="FIXTURES",
-    description="""Game data from FPL api bootstrap-static endpoint""",
+    description="""Pandas dataframe with derived features.""",
     kinds={"python", "pandas"},
 )
 def fixtures(
     context: AssetExecutionContext, raw_fixture_df: pd.DataFrame, epl_season: str
 ) -> pd.DataFrame:
-
+    """Transform raw fixture data by adding event type, season, and derived keys."""
     fixture_df = raw_fixture_df.copy()
 
     fixture_df["fixture_type"] = fixture_df.apply(
