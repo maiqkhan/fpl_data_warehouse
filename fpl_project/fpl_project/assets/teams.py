@@ -6,11 +6,12 @@ from datetime import datetime as dt
 
 @asset(
     group_name="TEAMS",
-    description="""Game data from FPL api bootstrap-static endpoint""",
+    description="""Pandas dataframe with team data from FPL api bootstrap-static endpoint""",
     kinds={"python", "pandas"},
 )
-def raw_teams_df(context: AssetExecutionContext, raw_teams: List[Dict]) -> pd.DataFrame:
-
+def raw_teams_df(raw_teams: List[Dict]) -> pd.DataFrame:
+    """Converts the raw list of team data from the FPL API into a pandas DataFrame.
+    """
     teams_df = pd.DataFrame.from_records(raw_teams)
 
     context.log.info(teams_df.columns)
@@ -24,9 +25,11 @@ def raw_teams_df(context: AssetExecutionContext, raw_teams: List[Dict]) -> pd.Da
     kinds={"python", "pandas"},
 )
 def teams(
-    context: AssetExecutionContext, raw_teams_df: pd.DataFrame, epl_season: str
+    raw_teams_df: pd.DataFrame, epl_season: str
 ) -> pd.DataFrame:
-
+    """Processes the raw team data from FPL API into a clean DataFrame with additional columns
+    for the EPL season and other relevant team details.
+    """
     teams_output = raw_teams_df[
         [
             "id",
