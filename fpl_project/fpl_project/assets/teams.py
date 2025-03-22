@@ -1,4 +1,4 @@
-from dagster import asset, AssetExecutionContext
+from dagster import asset
 from typing import Dict, List
 import pandas as pd
 from datetime import datetime as dt
@@ -13,8 +13,6 @@ def raw_teams_df(raw_teams: List[Dict]) -> pd.DataFrame:
     """Converts the raw list of team data from the FPL API into a pandas DataFrame.
     """
     teams_df = pd.DataFrame.from_records(raw_teams)
-
-    context.log.info(teams_df.columns)
 
     return teams_df
 
