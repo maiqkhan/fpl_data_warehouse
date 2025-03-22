@@ -58,7 +58,7 @@ def generate_date_fields_array(dt_lst: List[datetime]) -> List[Dict]:
     description="""Date record for today's extraction of FPL data""",
     kinds={"python", "pandas"},
 )
-def dates_df(first_fixture_date: date) -> pd.DataFrame:
+def dates_df() -> pd.DataFrame:
     """Generate a DataFrame containing date-related fields for today's extraction."""
     today_extract = datetime.today().date()
 
