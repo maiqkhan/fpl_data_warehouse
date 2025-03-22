@@ -1,6 +1,5 @@
 from dagster import (
     asset,
-    AssetExecutionContext,
 )
 from ..resources.postgres import PostgresResource
 from .models import (
@@ -18,10 +17,12 @@ from sqlalchemy import inspect, func, select, orm, text
 
 
 def table_exists(engine, table_name: str, schema: str = "dbo"):
+    """Checks if a table exists in the specified schema."""
     return inspect(engine).has_table(table_name=table_name, schema=schema)
 
 
 def truncate_table(session: orm.Session, table_name: str, schema_name: str) -> None:
+    """Truncates the specified table in the given schema."""
     session.execute(text(f"TRUNCATE TABLE {schema_name}.{table_name};"))
     session.commit()
 
@@ -32,9 +33,9 @@ def truncate_table(session: orm.Session, table_name: str, schema_name: str) -> N
     kinds={"python", "postgres", "table"},
 )
 def staging_dates_table(
-    context: AssetExecutionContext, dates_df: pd.DataFrame, fpl_server: PostgresResource
+    dates_df: pd.DataFrame, fpl_server: PostgresResource
 ) -> None:
-
+    """Loads the dim_date staging table with date information."""
     engine = fpl_server.connect_to_engine()
 
     if inspect(engine).has_table(
@@ -70,8 +71,7 @@ def staging_dates_table(
 
     else:
         Base.metadata.create_all(engine, tables=[fpl_dates.__table__])
-        context.log.info("table doesnt exists")
-
+        
         dates_df.sort_values(by=["date_id"]).to_sql(
             name=fpl_dates.__tablename__,
             schema=fpl_dates.__table_args__["schema"],
@@ -88,6 +88,7 @@ def staging_dates_table(
     kinds={"python", "postgres", "table"},
 )
 def staging_teams_table(teams: pd.DataFrame, fpl_server: PostgresResource) -> None:
+    """Loads the dim_team staging table with team information."""
     engine = fpl_server.connect_to_engine()
 
     table_name = stg_teams.__tablename__
@@ -123,6 +124,7 @@ def staging_teams_table(teams: pd.DataFrame, fpl_server: PostgresResource) -> No
 def staging_fixtures_table(
     fixtures: pd.DataFrame, fpl_server: PostgresResource
 ) -> None:
+    """Loads the dim_fixtures staging table with fixture information."""
     engine = fpl_server.connect_to_engine()
 
     table_name = stg_fixtures.__tablename__
@@ -156,9 +158,9 @@ def staging_fixtures_table(
     description="Staging table for dim_player table",
 )
 def staging_player_table(
-    context: AssetExecutionContext, players: pd.DataFrame, fpl_server: PostgresResource
+    players: pd.DataFrame, fpl_server: PostgresResource
 ) -> None:
-
+    """Loads the dim_player staging table with player information."""
     engine = fpl_server.connect_to_engine()
 
     table_name = stg_players.__tablename__
@@ -192,11 +194,10 @@ def staging_player_table(
     kinds={"python", "postgres", "table"},
 )
 def staging_matches_table(
-    context: AssetExecutionContext,
     matches_df: pd.DataFrame,
     fpl_server: PostgresResource,
 ) -> None:
-
+    """Loads the fact_matches staging table with match information."""
     engine = fpl_server.connect_to_engine()
 
     table_name = stg_matches.__tablename__
