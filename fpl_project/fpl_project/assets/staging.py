@@ -4,7 +4,7 @@ from dagster import (
 from ..resources.postgres import PostgresResource
 from .models import (
     Base,
-    fpl_dates,
+    stg_dates,
     stg_teams,
     stg_fixtures,
     stg_players,
@@ -36,50 +36,14 @@ def staging_dates_table(
     dates_df: pd.DataFrame, fpl_server: PostgresResource
 ) -> None:
     """Loads the dim_date staging table with date information."""
-    engine = fpl_server.connect_to_engine()
-
-    if inspect(engine).has_table(
-        fpl_dates.__tablename__, schema=fpl_dates.__table_args__["schema"]
-    ):
-        with fpl_server.get_session() as session:
-            max_stg_date = session.execute(
-                select(func.max(fpl_dates.date_id))
-            ).scalar_one_or_none()
-
-        if datetime.today().date() > max_stg_date:
-            truncate_table(
-                session=session,
-                table_name=fpl_dates.__tablename__,
-                schema_name=fpl_dates.__table_args__["schema"],
-            )
-
-            today_dt_array = generate_date_fields_array([datetime.today()])
-
-            date_ingest = pd.DataFrame.from_records(today_dt_array)
-
-            date_ingest.to_sql(
-                name=fpl_dates.__tablename__,
-                schema=fpl_dates.__table_args__["schema"],
-                con=engine,
+    with fpl_server.get_session() as session:    
+        dates_df.to_sql(
+                name=stg_dates.__tablename__,
+                schema=stg_dates.__table_args__["schema"],
+                con=session.bind,
                 if_exists="append",
-                index=False,
-                chunksize=365,
+                index=False
             )
-
-        else:
-            pass
-
-    else:
-        Base.metadata.create_all(engine, tables=[fpl_dates.__table__])
-        
-        dates_df.sort_values(by=["date_id"]).to_sql(
-            name=fpl_dates.__tablename__,
-            schema=fpl_dates.__table_args__["schema"],
-            con=engine,
-            if_exists="append",
-            index=False,
-            chunksize=365,
-        )
 
 
 @asset(
