@@ -15,7 +15,7 @@ class Base(DeclarativeBase):
     pass
 
 
-class fpl_dates(Base):
+class stg_dates(Base):
     __tablename__ = "dates"
     __table_args__ = {"schema": "stg"}
 

@@ -4,15 +4,13 @@ from dagster import (
 from ..resources.postgres import PostgresResource
 from .models import (
     Base,
-    fpl_dates,
+    stg_dates,
     stg_teams,
     stg_fixtures,
     stg_players,
     stg_matches,
 )
-from .dates import generate_date_fields_array
 import pandas as pd
-from datetime import datetime
 from sqlalchemy import inspect, func, select, orm, text
 
 
@@ -26,7 +24,6 @@ def truncate_table(session: orm.Session, table_name: str, schema_name: str) -> N
     session.execute(text(f"TRUNCATE TABLE {schema_name}.{table_name};"))
     session.commit()
 
-
 @asset(
     group_name="STAGING",
     description="Staging table for dim_date model.",
@@ -36,50 +33,14 @@ def staging_dates_table(
     dates_df: pd.DataFrame, fpl_server: PostgresResource
 ) -> None:
     """Loads the dim_date staging table with date information."""
-    engine = fpl_server.connect_to_engine()
-
-    if inspect(engine).has_table(
-        fpl_dates.__tablename__, schema=fpl_dates.__table_args__["schema"]
-    ):
-        with fpl_server.get_session() as session:
-            max_stg_date = session.execute(
-                select(func.max(fpl_dates.date_id))
-            ).scalar_one_or_none()
-
-        if datetime.today().date() > max_stg_date:
-            truncate_table(
-                session=session,
-                table_name=fpl_dates.__tablename__,
-                schema_name=fpl_dates.__table_args__["schema"],
-            )
-
-            today_dt_array = generate_date_fields_array([datetime.today()])
-
-            date_ingest = pd.DataFrame.from_records(today_dt_array)
-
-            date_ingest.to_sql(
-                name=fpl_dates.__tablename__,
-                schema=fpl_dates.__table_args__["schema"],
-                con=engine,
-                if_exists="append",
-                index=False,
-                chunksize=365,
-            )
-
-        else:
-            pass
-
-    else:
-        Base.metadata.create_all(engine, tables=[fpl_dates.__table__])
-        
+    with fpl_server.get_session() as session:    
         dates_df.sort_values(by=["date_id"]).to_sql(
-            name=fpl_dates.__tablename__,
-            schema=fpl_dates.__table_args__["schema"],
-            con=engine,
-            if_exists="append",
-            index=False,
-            chunksize=365,
-        )
+                name=stg_dates.__tablename__,
+                schema=stg_dates.__table_args__["schema"],
+                con=session.bind,
+                if_exists="append",
+                index=False
+            )
 
 
 @asset(
@@ -89,32 +50,24 @@ def staging_dates_table(
 )
 def staging_teams_table(teams: pd.DataFrame, fpl_server: PostgresResource) -> None:
     """Loads the dim_team staging table with team information."""
-    engine = fpl_server.connect_to_engine()
+    with fpl_server.get_session() as session:
+        table_name = stg_teams.__tablename__
+        schema_name = stg_teams.__table_args__["schema"]
 
-    table_name = stg_teams.__tablename__
-    schema_name = stg_teams.__table_args__["schema"]
-    table_inst = stg_teams.__table__
-
-    if inspect(engine).has_table(table_name, schema=schema_name):
-        with fpl_server.get_session() as session:
-            truncate_table(
+        truncate_table(
                 session=session,
                 table_name=table_name,
                 schema_name=schema_name,
             )
 
-    else:
-        Base.metadata.create_all(engine, tables=[table_inst])
-
-    teams.sort_values(by=["team_key"]).to_sql(
-        name=table_name,
-        schema=schema_name,
-        con=engine,
-        if_exists="append",
-        index=False,
-        chunksize=20,
-    )
-
+        teams.sort_values(by=["team_key"]).to_sql(
+            name=table_name,
+            schema=schema_name,
+            con=session.bind,
+            if_exists="append",
+            index=False,
+            chunksize=20,
+        )
 
 @asset(
     group_name="STAGING",
@@ -125,31 +78,24 @@ def staging_fixtures_table(
     fixtures: pd.DataFrame, fpl_server: PostgresResource
 ) -> None:
     """Loads the dim_fixtures staging table with fixture information."""
-    engine = fpl_server.connect_to_engine()
+    with fpl_server.get_session() as session:
+        table_name = stg_fixtures.__tablename__
+        schema_name = stg_fixtures.__table_args__["schema"]
 
-    table_name = stg_fixtures.__tablename__
-    schema_name = stg_fixtures.__table_args__["schema"]
-    table_inst = stg_fixtures.__table__
-
-    if inspect(engine).has_table(table_name, schema=schema_name):
-        with fpl_server.get_session() as session:
-            truncate_table(
+        truncate_table(
                 session=session,
                 table_name=table_name,
                 schema_name=schema_name,
             )
 
-    else:
-        Base.metadata.create_all(engine, tables=[table_inst])
-
-    fixtures.sort_values(by=["fixture_key"]).to_sql(
-        name=table_name,
-        schema=schema_name,
-        con=engine,
-        if_exists="append",
-        index=False,
-        chunksize=380,
-    )
+        fixtures.sort_values(by=["fixture_key"]).to_sql(
+            name=table_name,
+            schema=schema_name,
+            con=session.bind,
+            if_exists="append",
+            index=False,
+            chunksize=380,
+            )
 
 
 @asset(
@@ -161,31 +107,24 @@ def staging_player_table(
     players: pd.DataFrame, fpl_server: PostgresResource
 ) -> None:
     """Loads the dim_player staging table with player information."""
-    engine = fpl_server.connect_to_engine()
+    with fpl_server.get_session() as session:
+        table_name = stg_players.__tablename__
+        schema_name = stg_players.__table_args__["schema"]
 
-    table_name = stg_players.__tablename__
-    schema_name = stg_players.__table_args__["schema"]
-    table_inst = stg_players.__table__
-
-    if inspect(engine).has_table(table_name, schema=schema_name):
-        with fpl_server.get_session() as session:
-            truncate_table(
+        truncate_table(
                 session=session,
                 table_name=table_name,
                 schema_name=schema_name,
             )
 
-    else:
-        Base.metadata.create_all(engine, tables=[table_inst])
-
-    players.rename(columns={"team": "team_id"}).to_sql(
-        name=table_name,
-        schema=schema_name,
-        con=engine,
-        if_exists="append",
-        index=False,
-        chunksize=380,
-    )
+        players.sort_values(by=["player_id"]).to_sql(
+            name=table_name,
+            schema=schema_name,
+            con=session.bind,
+            if_exists="append",
+            index=False,
+            chunksize=380,
+            )
 
 
 @asset(
@@ -198,23 +137,6 @@ def staging_matches_table(
     fpl_server: PostgresResource,
 ) -> None:
     """Loads the fact_matches staging table with match information."""
-    engine = fpl_server.connect_to_engine()
-
-    table_name = stg_matches.__tablename__
-    schema_name = stg_matches.__table_args__["schema"]
-    table_inst = stg_matches.__table__
-
-    if inspect(engine).has_table(table_name, schema=schema_name):
-        with fpl_server.get_session() as session:
-            truncate_table(
-                session=session,
-                table_name=table_name,
-                schema_name=schema_name,
-            )
-
-    else:
-        Base.metadata.create_all(engine, tables=[table_inst])
-
     drop_cols = [
         "was_home",
         "kickoff_time",
@@ -225,11 +147,22 @@ def staging_matches_table(
         "position",
     ]
 
-    matches_df.drop(drop_cols, axis=1).to_sql(
-        name=table_name,
-        schema=schema_name,
-        con=engine,
-        if_exists="append",
-        index=False,
-        chunksize=380,
+    with fpl_server.get_session() as session:
+        table_name = stg_matches.__tablename__
+        schema_name = stg_matches.__table_args__["schema"]
+
+        truncate_table(
+                session=session,
+                table_name=table_name,
+                schema_name=schema_name,
+            )
+        
+        matches_df.drop(drop_cols, axis=1).sort_values(by=['player_id', 'fixture_id']).to_sql(
+            name=table_name,
+            schema=schema_name,
+            con=session.bind,
+            if_exists="append",
+            index=False,
+            chunksize=380,
     )
+        

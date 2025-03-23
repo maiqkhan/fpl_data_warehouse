@@ -68,6 +68,8 @@ def players(raw_player_df: pd.DataFrame, epl_season: str) -> pd.DataFrame:
 
     player_df["extract_dt"] = dt.today().date()
 
+    player_df = player_df.rename(columns={"team": "team_id"})
+
     return player_df
 
 
