@@ -16,6 +16,7 @@ import time
 def get_recent_completed_matches(
     api_fixtures: List[int], db_fixtures: List[int]
 ) -> List[int]:
+    """Identify recently completed matches by comparing API and database fixture lists."""
     if np.setdiff1d(db_fixtures, api_fixtures).size:
         raise Exception(
             f"There are finished fixtures in dim_fixture that are not flagged as finished in FPL: {np.setdiff1d(db_fixtures, api_fixtures)}"
@@ -27,15 +28,12 @@ def get_recent_completed_matches(
 def get_player_match_history(
     player_id_lst: List[int], api_resource: FplAPI, context: AssetExecutionContext
 ) -> pd.DataFrame:
+    """Retrieve match history data for a list of players from the FPL API."""
     player_match_lst = []
 
     if not player_id_lst:
         payload = api_resource.get_request(endpoint=f"element-summary/{1}/").json()
         match_lst_cols = payload["history"][0].keys()
-
-        context.log.info(
-            f"Creating empty dataframe with following columns: {match_lst_cols}"
-        )
 
         return pd.DataFrame([], columns=match_lst_cols)
     else:
@@ -55,7 +53,7 @@ def get_player_match_history(
 
 @asset(
     group_name="MATCH",
-    description="""All match statistics for a given player""",
+    description="""Matches finished since last pipeline run""",
     kinds={"python", "pandas"},
 )
 def incremental_finished_matches(
@@ -65,13 +63,13 @@ def incremental_finished_matches(
     fpl_server: PostgresResource,
     fixtures: pd.DataFrame,
 ) -> pd.DataFrame:
-
+    """Fetch and process recently completed match data points."""
     engine = fpl_server.connect_to_engine()
     api_fixtures_finished = fixtures.query("finished == True")
 
+    # If table exists, only process fixtures classified as finished in API but not in dim_fixture, else all completed fixtures
     if table_exists(engine, "fact_match_stats", "fpl"):
-        context.log.info("The table already exists")
-
+        
         with fpl_server.get_session() as session:
             fixture_query = select(dim_fixture.fixture_key).where(
                 dim_fixture.finished_ind == True
@@ -102,22 +100,13 @@ def incremental_finished_matches(
             "player_id"
         ].values.tolist()
 
-        context.log.info(recent_completed_fixtures_df)
-        context.log.info(teams_recently_played)
-
         raw_match_stats_history = get_player_match_history(
             player_lst, fpl_api, context
         ).query("fixture in @fixtures_recently_played")
 
     else:
-        context.log.info("The table does not exist")
-
-        context.log.info(players.columns)
-
         player_match_lst = []
         for player in players["player_id"].unique():
-            context.log.info(player)
-
             payload = fpl_api.get_request(endpoint=f"element-summary/{player}/").json()
 
             player_matches_df = pd.DataFrame.from_records(payload["history"])
@@ -144,8 +133,6 @@ def incremental_finished_matches(
         )
     )
 
-    context.log.info(match_stats_history.columns)
-
     return match_stats_history
 
 
@@ -155,10 +142,9 @@ def incremental_finished_matches(
     kinds={"python", "pandas"},
 )
 def matches_df(
-    context: AssetExecutionContext,
     incremental_finished_matches: pd.DataFrame,
 ) -> pd.DataFrame:
-
+    """Processes match statistics for individual players."""
     drop_cols = [
         "fixture_key",
         "fixture",
@@ -192,8 +178,5 @@ def matches_df(
         "expected_goals_conceded",
     ]:
         match_stats[col] = match_stats[col].apply(float)
-
-    context.log.info(match_stats.fixture_id.unique())
-    context.log.info(match_stats)
 
     return match_stats

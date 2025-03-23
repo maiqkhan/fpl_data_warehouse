@@ -57,7 +57,7 @@ refresh_match_stats = define_asset_job(
 
 @schedule(
     job=refresh_match_stats,
-    cron_schedule=f"30 0 * * *",
+    cron_schedule=f"30 19 * * *",
     default_status=DefaultScheduleStatus.RUNNING,
     execution_timezone='Canada/Eastern'
 )

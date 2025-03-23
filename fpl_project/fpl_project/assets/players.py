@@ -2,7 +2,6 @@ from typing import Dict, List
 from datetime import datetime as dt, timedelta as tmdelta
 from dagster import (
     asset,
-    AssetExecutionContext,
     asset_check,
     AssetCheckResult,
 )
@@ -14,6 +13,7 @@ from .models import dim_player, Base
 def generate_expiry_date(
     eff_dt, is_last_record, default_expiry=dt(year=2261, month=12, day=31).date()
 ):
+    """Generates an expiry date for a record."""
     if is_last_record:
         return default_expiry
     else:
@@ -22,11 +22,11 @@ def generate_expiry_date(
 
 @asset(
     group_name="PLAYER",
-    description="Player payload from ",
+    description="Pandas Dataframe with selectable players from API payload.",
     kinds={"python", "pandas"},
 )
 def raw_player_df(raw_players: List[Dict]) -> pd.DataFrame:
-
+    """Processes raw player data from the FPL API and filter out unselectable players."""
     raw_df = pd.DataFrame.from_records(raw_players).query("can_select == True")
 
     keep_cols = [
@@ -44,10 +44,13 @@ def raw_player_df(raw_players: List[Dict]) -> pd.DataFrame:
 
 @asset(
     group_name="PLAYER",
-    description="Player payload from ",
+    description="Process player data and assigns additional attributes.",
     kinds={"python", "pandas"},
 )
 def players(raw_player_df: pd.DataFrame, epl_season: str) -> pd.DataFrame:
+    """Transforms raw player data by assigning positions, renaming columns, 
+    and adding season and extraction date information.
+    """
 
     player_dict = {1: "Goalkeeper", 2: "Defender", 3: "Midfielder", 4: "Forward", 5: "Manager"}
 
@@ -76,7 +79,8 @@ def players(raw_player_df: pd.DataFrame, epl_season: str) -> pd.DataFrame:
 def unique_player_check(
     player_df: pd.DataFrame,
 ) -> AssetCheckResult:
-
+    """Validate that each player in the dataset has a unique player ID."
+    """
     if player_df.drop_duplicates(subset=["player_id"]).shape[0] != player_df.shape[0]:
         return AssetCheckResult(
             passed=False,
@@ -91,13 +95,14 @@ def unique_player_check(
 
 @asset(
     group_name="INITIAL_LOAD",
-    description="Apply Type 2 Slowly Changing Dimension logic to historical player data",
+    description="Type 2 slowly changing dimension historical player data",
     kinds={"python", "pandas"},
 )
 def player_scd_type_2_df(
     matches_df: pd.DataFrame,
 ) -> pd.DataFrame:
-
+    """Applies Type 2 Slowly Changing Dimension (SCD) logic to historical player data.
+    """
     player_hist_df = matches_df[
         [
             "player_id",
@@ -176,11 +181,12 @@ def player_scd_type_2_df(
     kinds={"python", "pandas"},
 )
 def initial_dim_player(
-    context: AssetExecutionContext,
     player_scd_type_2_df: pd.DataFrame,
     fpl_server: PostgresResource,
 ):
-
+    """Applies Type 2 Slowly Changing Dimension (SCD) logic to historical player data and inserts it into dim_player.
+    The table stores player information over time with changes in attributes like team, value, and season.
+    """
     table_name = dim_player.__tablename__
     schema_name = dim_player.__table_args__["schema"]
     table_inst = dim_player.__table__
@@ -190,8 +196,6 @@ def initial_dim_player(
     )
 
     player_scd_type_2_df = player_scd_type_2_df.drop("team_id", axis=1)
-
-    context.log.info(player_scd_type_2_df.columns)
 
     engine = fpl_server.connect_to_engine()
 
