@@ -109,8 +109,7 @@ services:
       - |
         dagster-daemon run & 
         sleep 10
-        dagster job launch --job INITIAL_DIM_TEAM_LOAD
-        dagster job launch --job INITIAL_DIM_PLAYER_LOAD
+        dagster job launch --job REFRESH_MATCH_STATS
         tail -f /dev/null
     restart: on-failure
     environment:
