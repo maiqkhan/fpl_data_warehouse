@@ -59,7 +59,7 @@ def get_player_match_history(
 def incremental_finished_matches(
     context: AssetExecutionContext,
     fpl_api: FplAPI,
-    players: pd.DataFrame,
+    players_processed: pd.DataFrame,
     fpl_server: PostgresResource,
     fixtures: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -96,7 +96,7 @@ def incremental_finished_matches(
             + recent_completed_fixtures_df["team_a"].values.tolist()
         )
 
-        player_lst = players.query("team in @teams_recently_played")[
+        player_lst = players_processed.query("team_id in @teams_recently_played")[
             "player_id"
         ].values.tolist()
 
@@ -106,7 +106,7 @@ def incremental_finished_matches(
 
     else:
         player_match_lst = []
-        for player in players["player_id"].unique():
+        for player in players_processed["player_id"].unique():
             payload = fpl_api.get_request(endpoint=f"element-summary/{player}/").json()
 
             player_matches_df = pd.DataFrame.from_records(payload["history"])
@@ -125,7 +125,7 @@ def incremental_finished_matches(
             validate="m:1",
         )
         .merge(
-            players[["player_id", "first_name", "last_name", "web_name", "position"]],
+            players_processed[["player_id", "first_name", "last_name", "web_name", "position"]],
             how="inner",
             left_on=["element"],
             right_on=["player_id"],

@@ -1,5 +1,5 @@
 from dagster import (
-    asset, AssetOut
+    asset, AssetOut, AssetExecutionContext
 )
 from ..resources.postgres import PostgresResource
 from .models import (
@@ -9,9 +9,10 @@ from .models import (
     stg_fixtures,
     stg_players,
     stg_matches,
+    dim_player
 )
 import pandas as pd
-from typing import List
+from typing import List, Tuple
 from sqlalchemy import inspect, func, select, orm, text
 from sqlalchemy.orm import Session
 
@@ -111,18 +112,24 @@ def staging_fixtures_table(
     description="Staging table for dim_player table",
 )
 def staging_player_table(
-    players: pd.DataFrame, fpl_server: PostgresResource
+    context: AssetExecutionContext, players: Tuple[pd.DataFrame, bool], fpl_server: PostgresResource
 ) -> None:
     """Loads the dim_player staging table with player information."""
+    player_df, dim_player_exists = players
+
+    staging_table = "players" if dim_player_exists else "players_initial"
+
+    context.log.info(staging_table)
+    
     with fpl_server.get_session() as session:
         reload_staging_table(
-            extract_df= players,
+            extract_df= player_df,
             session= session,
-            table_name= "players",
+            table_name= staging_table,
             sort_keys= ["player_id"],
             insert_chunk_size=380
         )
-
+    
 @asset(
     group_name="STAGING",
     description="Staging table for dim_date model.",
