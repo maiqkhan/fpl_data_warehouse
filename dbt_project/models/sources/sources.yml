@@ -238,6 +238,59 @@ sources:
             description: "The date that the player data was extracted from the FPL api."          
             data_test:
               - not_null
+      - name: players_initial
+        description: "Staging table for initial load of player information in slowly-changing dimension format"
+        columns:
+          - name: player_id  
+            description: "The id of a given player within a given season."          
+            data_test:
+              - unique
+              - not_null
+          - name: season  
+            description: "The current season."          
+            data_test:
+              - not_null
+          - name: first_name  
+            description: "The first name of a given player."          
+            data_test:
+              - not_null
+          - name: last_name  
+            description: "The last name of a given player."          
+            data_test:
+              - not_null
+          - name: web_name  
+            description: "The assigned FPL website name of a given player."          
+            data_test:
+              - not_null
+          - name: position  
+            description: "The position of a given player."          
+            data_test:
+              - accepted_values:
+                  values: ['Goalkeeper', 'Defender', 'Midfielder', 'Forward', 'Manager']
+          - name: price  
+            description: "The current price of a given player."          
+            data_test:
+              - not_null
+              - valid_range:
+                  min_value: 3
+                  max_value: 100
+          - name: team_key 
+            description: "The current team, a given player is playing for."          
+            data_test:
+              - not_null
+          - name: effective_dt  
+            description: "The start date that the player data was valid."          
+            data_test:
+              - not_null
+          - name: expiry_dt  
+            description: "The final date that the player data was valid."          
+            data_test:
+              - not_null
+          - name: current_ind  
+            description: "The indicator of whether the record contains the current player data."          
+            data_test:
+              - accepted_values:
+                  values: [0,1]          
       - name: matches
         meta:
           dagster:
