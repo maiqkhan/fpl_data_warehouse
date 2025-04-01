@@ -1,11 +1,13 @@
-from typing import Dict, List
+from typing import Dict, List, Tuple
 from datetime import datetime as dt, timedelta as tmdelta
 from dagster import (
     asset,
     asset_check,
     AssetCheckResult,
+    AssetExecutionContext
 )
 import pandas as pd
+from sqlalchemy import inspect, text, select
 from ..resources.postgres import PostgresResource
 from .models import dim_player, Base
 
@@ -47,7 +49,7 @@ def raw_player_df(raw_players: List[Dict]) -> pd.DataFrame:
     description="Process player data and assigns additional attributes.",
     kinds={"python", "pandas"},
 )
-def players(raw_player_df: pd.DataFrame, epl_season: str) -> pd.DataFrame:
+def players_processed(raw_player_df: pd.DataFrame, epl_season: str) -> pd.DataFrame:
     """Transforms raw player data by assigning positions, renaming columns, 
     and adding season and extraction date information.
     """
@@ -74,7 +76,7 @@ def players(raw_player_df: pd.DataFrame, epl_season: str) -> pd.DataFrame:
 
 
 @asset_check(
-    asset=players,
+    asset=players_processed,
     blocking=True,
     description="Check that player ID is unique across players dataframe.",
 )
@@ -96,16 +98,26 @@ def unique_player_check(
 
 
 @asset(
-    group_name="INITIAL_LOAD",
-    description="Type 2 slowly changing dimension historical player data",
+    group_name="PLAYER",
+    description="Process player data and assigns additional attributes.",
     kinds={"python", "pandas"},
 )
-def player_scd_type_2_df(
+def players(
+    players_processed: pd.DataFrame ,
     matches_df: pd.DataFrame,
-) -> pd.DataFrame:
-    """Applies Type 2 Slowly Changing Dimension (SCD) logic to historical player data.
-    """
-    player_hist_df = matches_df[
+    fpl_server: PostgresResource    
+) -> Tuple[pd.DataFrame, bool]:
+    
+    #Check if dim_player exists
+    engine = fpl_server.connect_to_engine()
+
+    with fpl_server.get_session() as session:
+        row_count = session.execute(select(dim_player)).first()
+
+    if row_count:
+        return (players_processed, True)
+    else:
+        player_hist_df = matches_df[
         [
             "player_id",
             "season",
@@ -117,97 +129,67 @@ def player_scd_type_2_df(
             "value",
             "kickoff_time",
         ]
-    ].sort_values(by=["player_id", "kickoff_time"])
+            ].sort_values(by=["player_id", "kickoff_time"])
 
-    for col in ["player_id", "team_id", "value"]:
-        player_hist_df[f"{col}_change"] = (
-            player_hist_df[f"{col}"] != player_hist_df[f"{col}"].shift()
+        for col in ["player_id", "team_id", "value"]:
+            player_hist_df[f"{col}_change"] = (
+                player_hist_df[f"{col}"] != player_hist_df[f"{col}"].shift()
+            )
+
+        player_hist_df["new_record"] = (
+            player_hist_df["player_id_change"]
+            | player_hist_df["value_change"]
+            | player_hist_df["team_id_change"]
         )
 
-    player_hist_df["new_record"] = (
-        player_hist_df["player_id_change"]
-        | player_hist_df["value_change"]
-        | player_hist_df["team_id_change"]
-    )
+        player_hist_df["eff_group"] = player_hist_df["new_record"].cumsum()
 
-    player_hist_df["eff_group"] = player_hist_df["new_record"].cumsum()
-
-    scd_player_history = (
-        player_hist_df.groupby("eff_group")
-        .agg(
-            player_id=("player_id", "first"),
-            season=("season", "first"),
-            first_name=("first_name", "first"),
-            last_name=("last_name", "first"),
-            web_name=("web_name", "first"),
-            position=("position", "first"),
-            price=("value", "first"),
-            team_id=("team_id", "first"),
-            effective_dt=("kickoff_time", "first"),
+        scd_player_history = (
+            player_hist_df.groupby("eff_group")
+            .agg(
+                player_id=("player_id", "first"),
+                season=("season", "first"),
+                first_name=("first_name", "first"),
+                last_name=("last_name", "first"),
+                web_name=("web_name", "first"),
+                position=("position", "first"),
+                price=("value", "first"),
+                team_id=("team_id", "first"),
+                effective_dt=("kickoff_time", "first"),
+            )
+            .reset_index(drop=True)
         )
-        .reset_index(drop=True)
-    )
 
-    scd_player_history["effective_dt"] = scd_player_history["effective_dt"].apply(
-        lambda x: x.date()
-    )
+        scd_player_history["effective_dt"] = scd_player_history["effective_dt"].apply(
+            lambda x: x.date()
+        )
 
-    scd_player_history["is_last_record"] = (
-        scd_player_history.groupby("player_id")["effective_dt"].transform("max")
-        == scd_player_history["effective_dt"]
-    )
+        scd_player_history["is_last_record"] = (
+            scd_player_history.groupby("player_id")["effective_dt"].transform("max")
+            == scd_player_history["effective_dt"]
+        )
 
-    scd_player_history["next_effective_dt"] = scd_player_history.groupby("player_id")[
-        "effective_dt"
-    ].shift(-1)
+        scd_player_history["next_effective_dt"] = scd_player_history.groupby("player_id")[
+            "effective_dt"
+        ].shift(-1)
 
-    scd_player_history["expiry_dt"] = scd_player_history.apply(
-        lambda x: generate_expiry_date(x["next_effective_dt"], x["is_last_record"]),
-        axis=1,
-    )
+        scd_player_history["expiry_dt"] = scd_player_history.apply(
+            lambda x: generate_expiry_date(x["next_effective_dt"], x["is_last_record"]),
+            axis=1,
+        )
 
-    scd_player_history["current_ind"] = scd_player_history["is_last_record"].apply(
-        lambda x: 1 if x else 0
-    )
+        scd_player_history["current_ind"] = scd_player_history["is_last_record"].apply(
+            lambda x: 1 if x else 0
+        )
 
-    scd_player_history = scd_player_history.drop(
-        ["is_last_record", "next_effective_dt"], axis=1
-    )
+        scd_player_history = scd_player_history.drop(
+            ["is_last_record", "next_effective_dt"], axis=1
+        )
 
-    return scd_player_history
+        scd_player_history["team_key"] = scd_player_history.apply(
+            lambda x: int(f"{x['season'][:4]}{x['season'][5:]}{x['team_id']}"), axis=1
+        )
 
-
-@asset(
-    group_name="INITIAL_LOAD",
-    description="Apply Type 2 Slowly Changing Dimension logic to historical player data",
-    kinds={"python", "pandas"},
-)
-def initial_dim_player(
-    player_scd_type_2_df: pd.DataFrame,
-    fpl_server: PostgresResource,
-):
-    """Applies Type 2 Slowly Changing Dimension (SCD) logic to historical player data and inserts it into dim_player.
-    The table stores player information over time with changes in attributes like team, value, and season.
-    """
-    table_name = dim_player.__tablename__
-    schema_name = dim_player.__table_args__["schema"]
-    table_inst = dim_player.__table__
-
-    player_scd_type_2_df["team_key"] = player_scd_type_2_df.apply(
-        lambda x: int(f"{x['season'][:4]}{x['season'][5:]}{x['team_id']}"), axis=1
-    )
-
-    player_scd_type_2_df = player_scd_type_2_df.drop("team_id", axis=1)
-
-    engine = fpl_server.connect_to_engine()
-
-    Base.metadata.create_all(engine, tables=[table_inst])
-
-    player_scd_type_2_df.sort_values(by=["player_id", "effective_dt"]).to_sql(
-        name=table_name,
-        schema=schema_name,
-        if_exists="append",
-        chunksize=220,
-        index=False,
-        con=engine,
-    )
+        scd_player_history = scd_player_history.drop("team_id", axis=1)
+            
+        return (scd_player_history, False)
