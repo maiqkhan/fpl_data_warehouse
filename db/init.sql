@@ -96,3 +96,31 @@ CREATE TABLE stg.matches(
     PRIMARY KEY (player_id, fixture_id)
 );
 
+CREATE TABLE stg.players_initial(
+    player_id INTEGER NOT NULL, 
+    season VARCHAR(7) NOT NULL, 
+    team_key INTEGER NOT NULL,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL, 
+    web_name VARCHAR(100) NOT NULL, 
+    position VARCHAR(50) NOT NULL, 
+    price INTEGER NOT NULL, 
+    effective_dt DATE NOT NULL, 
+    expiry_dt DATE NOT NULL,  
+    current_ind INTEGER NOT NULL
+);
+
+CREATE TABLE fpl.dim_player(
+    player_key SERIAL PRIMARY KEY,
+    player_Id INTEGER NOT NULL,
+    season VARCHAR(7) NOT NULL,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL, 
+    web_name VARCHAR(100) NOT NULL, 
+    position VARCHAR(50) NOT NULL,  
+    price INTEGER NOT NULL, 
+    team_key INTEGER NOT NULL,
+    effective_dt DATE NOT NULL, 
+    expiry_dt DATE NOT NULL,  
+    current_ind INTEGER NOT NULL    
+);
