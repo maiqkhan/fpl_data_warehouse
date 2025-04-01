@@ -1,11 +1,19 @@
+-- depends_on: {{ ref('dim_team') }}
+
 {{  config(
         materialized='incremental',
         unique_key=['player_id', 'season', 'effective_dt'],
         incremental_strategy='merge',
         merge_update_columns = ['expiry_dt', 'current_ind'],
         on_schema_change='fail',
-        post_hook="ALTER TABLE {{ this }} ADD CONSTRAINT unique_season_player UNIQUE (player_id, season, effective_dt, expiry_dt);"
     ) }}
+
+
+{% set query = "SELECT COUNT(*) FROM " ~ source('stg', 'players') %}
+{% set result = run_query(query) %}
+{% set row_count = result.columns[0].values()[0] if result and result.columns[0].values() else 0 %}
+
+{% if row_count > 1 %}
 
 WITH source_data as (
     SELECT 
@@ -121,5 +129,24 @@ SELECT * FROM new_player_data
 {% if is_incremental() %}
 
 where effective_dt > (select max(effective_dt) from {{ this }} )
+
+{% endif %}
+
+{% else %}
+
+SELECT 
+cast(nextval(pg_get_serial_sequence('{{ this }}', 'player_key')) as int) as player_key
+,player_id 
+,season
+,first_name
+,last_name
+,web_name
+,position
+,price
+,team_key
+,effective_dt
+,expiry_dt
+,current_ind
+FROM {{ source('stg', 'players_initial') }} as player_source
 
 {% endif %}
