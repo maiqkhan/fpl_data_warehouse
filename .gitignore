@@ -137,6 +137,7 @@ celerybeat.pid
 
 # Environments
 *.env
+!fpl_db_sample.env
 .venv
 env/
 venv/
