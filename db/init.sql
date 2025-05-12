@@ -124,3 +124,6 @@ CREATE TABLE fpl.dim_player(
     expiry_dt DATE NOT NULL,  
     current_ind INTEGER NOT NULL    
 );
+
+
+CREATE DATABASE dagster_metadata;

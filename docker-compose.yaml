@@ -5,7 +5,7 @@ services:
     container_name: fpl_db    
     env_file: "fpl_db.env"
     ports:
-      - "5433:5432" #Dagster Postgres Instance will use port 5432
+      - "5432:5432" #Dagster Postgres Instance will use port 5432
     networks:
       - fpl_dagster_network
     volumes:
@@ -18,23 +18,23 @@ services:
       timeout: 8s
       retries: 5
       start_period: 10s  
-  dagster_postgres:
-    image: postgres:16
-    container_name: dagster_postgresql
-    environment:
-      POSTGRES_USER: "postgres_user"
-      POSTGRES_PASSWORD: "postgres_password"
-      POSTGRES_DB: "postgres_db"
-    networks:
-      - fpl_dagster_network
-    volumes:
-      - "./scripts/health_check.sh:/usr/local/bin/health_check.sh"
-    healthcheck:
-      test: ["CMD-SHELL", "/usr/local/bin/health_check.sh"]
-      interval: 30s
-      timeout: 8s
-      retries: 5
-      start_period: 10s
+  # dagster_postgres:
+  #   image: postgres:16
+  #   container_name: dagster_postgresql
+  #   environment:
+  #     POSTGRES_USER: "postgres_user"
+  #     POSTGRES_PASSWORD: "postgres_password"
+  #     POSTGRES_DB: "postgres_db"
+  #   networks:
+  #     - fpl_dagster_network
+  #   volumes:
+  #     - "./scripts/health_check.sh:/usr/local/bin/health_check.sh"
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "/usr/local/bin/health_check.sh"]
+  #     interval: 30s
+  #     timeout: 8s
+  #     retries: 5
+  #     start_period: 10s
   dagster_user_code:
     build:
       context: .
@@ -47,9 +47,9 @@ services:
     ports:
       - 4000:4000 
     environment:
-      DAGSTER_POSTGRES_USER: "postgres_user"
-      DAGSTER_POSTGRES_PASSWORD: "postgres_password"
-      DAGSTER_POSTGRES_DB: "postgres_db"
+      DAGSTER_POSTGRES_USER: "postgres"
+      DAGSTER_POSTGRES_PASSWORD: "postgres"
+      DAGSTER_POSTGRES_DB: "dagster_metadata"
       DAGSTER_CURRENT_IMAGE: "dagster_user_code_image"
     networks:
       - fpl_dagster_network
@@ -85,15 +85,15 @@ services:
     networks:
       - fpl_dagster_network
     environment:
-      DAGSTER_POSTGRES_USER: "postgres_user"
-      DAGSTER_POSTGRES_PASSWORD: "postgres_password"
-      DAGSTER_POSTGRES_DB: "postgres_db"
+      DAGSTER_POSTGRES_USER: "postgres"
+      DAGSTER_POSTGRES_PASSWORD: "postgres"
+      DAGSTER_POSTGRES_DB: "dagster_metadata"
     volumes: 
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp/io_manager_storage:/tmp/io_manager_storage
       - ./dbt_project:/opt/dagster/app/dbt_project
     depends_on:
-      dagster_postgres:
+      fpl_database:
         condition: service_healthy
       dagster_user_code:
         condition: service_healthy
@@ -113,9 +113,9 @@ services:
         tail -f /dev/null
     restart: on-failure
     environment:
-      DAGSTER_POSTGRES_USER: "postgres_user"
-      DAGSTER_POSTGRES_PASSWORD: "postgres_password"
-      DAGSTER_POSTGRES_DB: "postgres_db"
+      DAGSTER_POSTGRES_USER: "postgres"
+      DAGSTER_POSTGRES_PASSWORD: "postgres"
+      DAGSTER_POSTGRES_DB: "dagster_metadata"
     volumes: 
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp/io_manager_storage:/tmp/io_manager_storage
@@ -123,7 +123,7 @@ services:
     networks:
       - fpl_dagster_network
     depends_on:
-      dagster_postgres:
+      fpl_database:
         condition: service_healthy
       dagster_user_code:
         condition: service_healthy
