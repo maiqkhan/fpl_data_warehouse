@@ -86,13 +86,10 @@ CREATE TABLE stg.matches(
     goals_scored INTEGER NOT NULL,
     threat FLOAT NOT NULL,
     creativity INTEGER NOT NULL,
-    mng_win INTEGER NOT NULL,
-    mng_draw INTEGER NOT NULL,
-    mng_loss INTEGER NOT NULL,
-    mng_underdog_win INTEGER NOT NULL,
-    mng_underdog_draw INTEGER NOT NULL,
-    mng_clean_sheets INTEGER NOT NULL,
-    mng_goals_scored INTEGER NOT NULL,
+    clearances_blocks_interceptions INTEGER NOT NULL,
+    recoveries INTEGER NOT NULL,
+    tackles INTEGER NOT NULL,
+    defensive_contribution INTEGER NOT NULL,
     PRIMARY KEY (player_id, fixture_id)
 );
 
