@@ -128,17 +128,17 @@ services:
       dagster_user_code:
         condition: service_healthy
 
-  pgadmin:
-    image: dpage/pgadmin4
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
-      - PGADMIN_DEFAULT_PASSWORD=root
-      - PGADMIN_CONFIG_PROXY_X_HOST_COUNT=1
-      - PGADMIN_CONFIG_PROXY_X_PREFIX_COUNT=1
-    ports:
-      - "8080:80"
-    networks:
-      - fpl_dagster_network     
+  # pgadmin:
+  #   image: dpage/pgadmin4
+  #   environment:
+  #     - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+  #     - PGADMIN_DEFAULT_PASSWORD=root
+  #     - PGADMIN_CONFIG_PROXY_X_HOST_COUNT=1
+  #     - PGADMIN_CONFIG_PROXY_X_PREFIX_COUNT=1
+  #   ports:
+  #     - "8080:80"
+  #   networks:
+  #     - fpl_dagster_network     
 networks:
   fpl_dagster_network:
     driver: bridge
